@@ -284,6 +284,7 @@ class AuthMethods:
             *,
             password: str = None,
             bot_token: str = None,
+            email_code: str = None,
             phone_code_hash: str = None) -> 'typing.Union[types.User, types.auth.SentCode]':
         """
         Logs in to Telegram to an existing user or bot account.
@@ -338,16 +339,16 @@ class AuthMethods:
         if me:
             return me
 
-        if phone and not code and not password:
+        if phone and not code and not password and not email_code:
             return await self.send_code_request(phone)
-        elif code:
+        elif code or email_code:
             phone, phone_code_hash = \
                 self._parse_phone_and_hash(phone, phone_code_hash)
 
             # May raise PhoneCodeEmptyError, PhoneCodeExpiredError,
             # PhoneCodeHashEmptyError or PhoneCodeInvalidError.
             request = functions.auth.SignInRequest(
-                phone, phone_code_hash, str(code)
+                phone, phone_code_hash, str(code), types.EmailVerificationCode(email_code) if email_code else None
             )
         elif password:
             pwd = await self(functions.account.GetPasswordRequest())
@@ -480,7 +481,41 @@ class AuthMethods:
         self._self_input_peer = utils.get_input_peer(user, allow_self=False)
         self._authorized = True
 
-        return user
+        return user 
+
+    async def send_email_code(
+        self: "TelegramClient",
+        email: str,
+        purpose: str,
+    ) -> "types.account.SentEmailCode":
+
+        if purpose == "setup":
+            purpose = types.EmailVerifyPurposeLoginSetup()
+        elif purpose == "login_change":
+            purpose = types.EmailVerifyPurposeLoginChange()
+
+        else:
+            raise ValueError(
+                "`purpose` must be either 'setup', 'login_change'"
+            )
+        return await self(functions.account.SendVerifyEmailCodeRequest(purpose, email))
+
+
+        if purpose == "setup":
+            purpose = types.EmailVerifyPurposeLoginSetup()
+        elif purpose == "login_change":
+            purpose = types.EmailVerifyPurposeLoginChange()
+        else:
+            raise ValueError(
+                "`purpose` must be either 'setup', 'login_change'"
+            )
+
+        return await self(
+            functions.account.VerifyEmailRequest(
+                purpose,
+                types.EmailVerificationCode(code),
+            )
+        )
 
     async def send_code_request(
             self: 'TelegramClient',

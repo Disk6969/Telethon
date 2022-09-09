@@ -1,4 +1,4 @@
-
+import re
 import struct
 from collections import deque
 from html import escape
@@ -139,6 +139,8 @@ class TextDecoration():
     def apply_entity(self, entity, text):
         entity_map = {MessageEntityBold: "bold", MessageEntityItalic: "italic", MessageEntitySpoiler: "spoiler", MessageEntityCode: "code", MessageEntityUnderline: "underline", MessageEntityStrike: "strikethrough"}
         if type(entity) in entity_map:
+            if re.match(r"^<emoji document_id=\"?\d+?\"?>[^<]*?<\/emoji>$", text):
+                return text
             return cast(str, getattr(self, entity_map[type(entity)])(value=text))
         if type(entity) == MessageEntityPre:
             return (
@@ -213,6 +215,6 @@ class TextDecoration():
     def quote(self, value):
         return escape(value, quote=False)
     def custom_emoji(self, value, document_id):
-        return f'<emoji id="{document_id}">{value}</emoji>'
+        return f'<emoji id={document_id}>{value}</emoji>'
 
 unparse = TextDecoration().unparse

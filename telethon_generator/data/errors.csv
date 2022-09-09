@@ -439,4 +439,7 @@ WEBDOCUMENT_URL_INVALID,400,The given URL cannot be used
 WEBPAGE_CURL_FAILED,400,Failure while fetching the webpage with cURL
 WEBPAGE_MEDIA_EMPTY,400,Webpage media empty
 WORKER_BUSY_TOO_LONG_RETRY,500,Telegram workers are too busy to respond immediately
-YOU_BLOCKED_USER,400,You blocked this user
+YOU_BLOCKED_USER,400,You blocked this user 
+MSG_VOICE_TOO_LONG,400,Voice message is too big to recognize
+VOICE_MESSAGES_FORBIDDEN,400,User have forbidden to receive voice messages
+MSG_VOICE_MISSING,400,There is no voice in message to transcribe

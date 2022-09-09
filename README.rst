@@ -11,7 +11,7 @@ Forked Telethon |logo|
   +-----------------------+
   |   Telethon 1.24.0     |
   +-----------------------+
-  |      layer: 144       |
+  |      layer: 145       |
   +-----------------------+
 
 About
@@ -26,9 +26,16 @@ install: (if any issues, try uninstalling telethon first):
 
   pip install -U newthon
 
+Email login
+===========
+Added `email_code` argument to `client.sign_in()` to login via code if sent to mail.
 
-Reactions
-=========
+Reactions and status
+====================
+Added `client.set_status(document_id, until)` for premium accounts' `CustomEmoji` in profile.
+Added `add_to_recent` argument for reactions.
+
+About reactions:
 
 .. code-block:: py
 
@@ -40,11 +47,8 @@ or shorter:
 
     message.react("😁", big=True)
 
-to send a reaction with animation(for pms) use `big=True`, and, to remove a reaction use `remove=True`: 
-
-.. code-block:: py
-
-    message.react(remove=True)
+Reactions with large animation (for pms) `big=True`.
+To remove a reaction use `message.react(remove=True)`, and, to add a react to recents too, use `add_to_recent` as True.
 
 Premium
 =======
