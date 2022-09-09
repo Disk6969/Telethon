@@ -139,7 +139,15 @@ class _DraftsIter(RequestIter):
 class DialogMethods:
 
     # region Public methods
-
+    async def get_dialog(
+            self: 'TelegramClient',
+            entity: 'hints.EntityLike' = None,
+            ):
+        
+        if not utils.is_list_like(entity):
+            entity = (entity,)
+        return await self(functions.messages.GetPeerDialogsRequest(entity))
+    
     def iter_dialogs(
             self: 'TelegramClient',
             limit: float = None,
@@ -149,8 +157,9 @@ class DialogMethods:
             offset_peer: 'hints.EntityLike' = types.InputPeerEmpty(),
             ignore_pinned: bool = False,
             ignore_migrated: bool = False,
+            entity: 'hints.EntityLike' = None,
             folder: int = None,
-            archived: bool = None
+            archived: bool = None 
     ) -> _DialogsIter:
         """
         Iterator over the dialogs (open conversations/subscribed channels).
@@ -253,7 +262,38 @@ class DialogMethods:
                 archived = await client.get_dialogs(folder=1)
                 archived = await client.get_dialogs(archived=True)
         """
-        return await self.iter_dialogs(*args, **kwargs).collect()
+        entity = kwargs.get("entity")
+        if entity:
+            dialog = self.get_dialog(entity)
+        else:
+            dialog = self.iter_dialogs(*args, **kwargs)
+       
+        if hasattr(dialog, "collect"):
+            return await dialog.collect()
+
+        result = helpers.TotalList()
+        r = await dialog
+        entities = {utils.get_peer_id(x): x
+                    for x in itertools.chain(r.users, r.chats)
+                    if not isinstance(x, (types.UserEmpty, types.ChatEmpty))}
+        messages = {}
+
+        for m in r.messages:
+            m._finish_init(self, entities, None)
+            messages[_dialog_message_key(m.peer_id, m.id)] = m
+
+        for d in r.dialogs:
+            message = messages.get(_dialog_message_key(d.peer, d.top_message))
+
+            peer_id = utils.get_peer_id(d.peer)
+            
+            cd = custom.Dialog(self, d, entities, message)
+            if cd.dialog.pts:
+                self ._channel_pts[cd.id] = cd.dialog.pts
+            result.append(cd)
+         
+        result.total = len(r.dialogs)
+        return result
 
     get_dialogs.__signature__ = inspect.signature(iter_dialogs)
 
