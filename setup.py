@@ -61,8 +61,6 @@ IMPORT_DEPTH = 2
 DOCS_IN_RES = GENERATOR_DIR / 'data/html'
 DOCS_OUT = Path('docs')
 
-run('python3 -m pip uninstall telethon', shell=True)
-
 def generate(which, action='gen'):
     from telethon_generator.parsers import\
         parse_errors, parse_methods, parse_tl, find_layer
