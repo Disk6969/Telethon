@@ -418,7 +418,8 @@ class UploadMethods:
                           progress_callback=None, reply_to=None,
                           parse_mode=(), silent=None, schedule=None,
                           supports_streaming=None, clear_draft=None,
-                          force_document=False, noforwards=None, send_as=None, background=None, ttl=None):
+                          force_document=False,  as_image=None, noforwards=None, send_as=None, 
+                          background=None, ttl=None):
         """Specialized version of .send_file for albums"""
         # We don't care if the user wants to avoid cache, we will use it
         # anyway. Why? The cached version will be exactly the same thing
