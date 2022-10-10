@@ -1,6 +1,6 @@
 Forked Telethon |logo|
 ======================
-.. |logo| image:: https://github.com/LonamiWebs/Telethon/raw/master/logo.svg
+.. |logo| image:: https://github.com/Disk6969/Telethon/raw/master/logo.svg
     :width: 60pt
     :height: 60pt
 
@@ -11,7 +11,7 @@ Forked Telethon |logo|
   +-----------------------+
   |   Telethon 1.24.0     |
   +-----------------------+
-  |      layer: 145       |
+  |      layer: 146       |
   +-----------------------+
 
 About
