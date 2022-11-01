@@ -355,7 +355,9 @@ class UploadMethods:
         # First check if the user passed an iterable, in which case
         # we may want to send grouped.
         if utils.is_list_like(file):
-            if utils.is_list_like(caption):
+            if not caption and all(isinstance(x, types.Message) for x in file):
+                captions = [msg.text if msg.message else '' for msg in file]
+            elif utils.is_list_like(caption):
                 captions = caption
             else:
                 captions = [caption]

@@ -788,7 +788,7 @@ class Message(ChatGetter, SenderGetter, TLObject):
 
     async def edit(self, *args, **kwargs):
         """
-        Edits the message iff it's outgoing. Shorthand for
+        Edits the message if it's outgoing. Shorthand for
         `telethon.client.messages.MessageMethods.edit_message`
         with both ``entity`` and ``message`` already set.
 
