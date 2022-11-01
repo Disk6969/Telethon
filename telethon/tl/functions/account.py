@@ -6,7 +6,7 @@ import os
 import struct
 from datetime import datetime
 if TYPE_CHECKING:
-    from ...tl.types import TypeAccountDaysTTL, TypeAutoDownloadSettings, TypeBaseTheme, TypeCodeSettings, TypeGlobalPrivacySettings, TypeInputCheckPasswordSRP, TypeInputDocument, TypeInputFile, TypeInputNotifyPeer, TypeInputPeer, TypeInputPeerNotifySettings, TypeInputPhoto, TypeInputPrivacyKey, TypeInputPrivacyRule, TypeInputSecureValue, TypeInputTheme, TypeInputThemeSettings, TypeInputWallPaper, TypeReportReason, TypeSecureCredentialsEncrypted, TypeSecureValueHash, TypeSecureValueType, TypeWallPaperSettings
+    from ...tl.types import TypeAccountDaysTTL, TypeAutoDownloadSettings, TypeBaseTheme, TypeCodeSettings, TypeEmailVerification, TypeEmailVerifyPurpose, TypeEmojiStatus, TypeGlobalPrivacySettings, TypeInputCheckPasswordSRP, TypeInputDocument, TypeInputFile, TypeInputNotifyPeer, TypeInputPeer, TypeInputPeerNotifySettings, TypeInputPhoto, TypeInputPrivacyKey, TypeInputPrivacyRule, TypeInputSecureValue, TypeInputTheme, TypeInputThemeSettings, TypeInputWallPaper, TypeReportReason, TypeSecureCredentialsEncrypted, TypeSecureValueHash, TypeSecureValueType, TypeWallPaperSettings
     from ...tl.types.account import TypePasswordInputSettings
 
 
@@ -187,6 +187,25 @@ class CheckUsernameRequest(TLRequest):
     def from_reader(cls, reader):
         _username = reader.tgread_string()
         return cls(username=_username)
+
+
+class ClearRecentEmojiStatusesRequest(TLRequest):
+    CONSTRUCTOR_ID = 0x18201aae
+    SUBCLASS_OF_ID = 0xf5b399ac
+
+    def to_dict(self):
+        return {
+            '_': 'ClearRecentEmojiStatusesRequest'
+        }
+
+    def _bytes(self):
+        return b''.join((
+            b'\xae\x1a \x18',
+        ))
+
+    @classmethod
+    def from_reader(cls, reader):
+        return cls()
 
 
 class ConfirmPasswordEmailRequest(TLRequest):
@@ -606,6 +625,35 @@ class GetContentSettingsRequest(TLRequest):
         return cls()
 
 
+class GetDefaultEmojiStatusesRequest(TLRequest):
+    CONSTRUCTOR_ID = 0xd6753386
+    SUBCLASS_OF_ID = 0xd3e005ca
+
+    # noinspection PyShadowingBuiltins
+    def __init__(self, hash: int):
+        """
+        :returns account.EmojiStatuses: Instance of either EmojiStatusesNotModified, EmojiStatuses.
+        """
+        self.hash = hash
+
+    def to_dict(self):
+        return {
+            '_': 'GetDefaultEmojiStatusesRequest',
+            'hash': self.hash
+        }
+
+    def _bytes(self):
+        return b''.join((
+            b'\x863u\xd6',
+            struct.pack('<q', self.hash),
+        ))
+
+    @classmethod
+    def from_reader(cls, reader):
+        _hash = reader.read_long()
+        return cls(hash=_hash)
+
+
 class GetGlobalPrivacySettingsRequest(TLRequest):
     CONSTRUCTOR_ID = 0xeb2b4cf6
     SUBCLASS_OF_ID = 0xc90e5770
@@ -805,6 +853,35 @@ class GetPrivacyRequest(TLRequest):
         return cls(key=_key)
 
 
+class GetRecentEmojiStatusesRequest(TLRequest):
+    CONSTRUCTOR_ID = 0xf578105
+    SUBCLASS_OF_ID = 0xd3e005ca
+
+    # noinspection PyShadowingBuiltins
+    def __init__(self, hash: int):
+        """
+        :returns account.EmojiStatuses: Instance of either EmojiStatusesNotModified, EmojiStatuses.
+        """
+        self.hash = hash
+
+    def to_dict(self):
+        return {
+            '_': 'GetRecentEmojiStatusesRequest',
+            'hash': self.hash
+        }
+
+    def _bytes(self):
+        return b''.join((
+            b'\x05\x81W\x0f',
+            struct.pack('<q', self.hash),
+        ))
+
+    @classmethod
+    def from_reader(cls, reader):
+        _hash = reader.read_long()
+        return cls(hash=_hash)
+
+
 class GetSavedRingtonesRequest(TLRequest):
     CONSTRUCTOR_ID = 0xe1902288
     SUBCLASS_OF_ID = 0x27bcc95e
@@ -868,40 +945,36 @@ class GetSecureValueRequest(TLRequest):
 
 
 class GetThemeRequest(TLRequest):
-    CONSTRUCTOR_ID = 0x8d9d742b
+    CONSTRUCTOR_ID = 0x3a5869ec
     SUBCLASS_OF_ID = 0x56b4c80c
 
     # noinspection PyShadowingBuiltins
-    def __init__(self, format: str, theme: 'TypeInputTheme', document_id: int):
+    def __init__(self, format: str, theme: 'TypeInputTheme'):
         """
         :returns Theme: Instance of Theme.
         """
         self.format = format
         self.theme = theme
-        self.document_id = document_id
 
     def to_dict(self):
         return {
             '_': 'GetThemeRequest',
             'format': self.format,
-            'theme': self.theme.to_dict() if isinstance(self.theme, TLObject) else self.theme,
-            'document_id': self.document_id
+            'theme': self.theme.to_dict() if isinstance(self.theme, TLObject) else self.theme
         }
 
     def _bytes(self):
         return b''.join((
-            b'+t\x9d\x8d',
+            b'\xeciX:',
             self.serialize_bytes(self.format),
             self.theme._bytes(),
-            struct.pack('<q', self.document_id),
         ))
 
     @classmethod
     def from_reader(cls, reader):
         _format = reader.tgread_string()
         _theme = reader.tgread_object()
-        _document_id = reader.read_long()
-        return cls(format=_format, theme=_theme, document_id=_document_id)
+        return cls(format=_format, theme=_theme)
 
 
 class GetThemesRequest(TLRequest):
@@ -1235,6 +1308,39 @@ class RegisterDeviceRequest(TLRequest):
             _other_uids.append(_x)
 
         return cls(token_type=_token_type, token=_token, app_sandbox=_app_sandbox, secret=_secret, other_uids=_other_uids, no_muted=_no_muted)
+
+
+class ReorderUsernamesRequest(TLRequest):
+    CONSTRUCTOR_ID = 0xef500eab
+    SUBCLASS_OF_ID = 0xf5b399ac
+
+    def __init__(self, order: List[str]):
+        """
+        :returns Bool: This type has no constructors.
+        """
+        self.order = order
+
+    def to_dict(self):
+        return {
+            '_': 'ReorderUsernamesRequest',
+            'order': [] if self.order is None else self.order[:]
+        }
+
+    def _bytes(self):
+        return b''.join((
+            b'\xab\x0eP\xef',
+            b'\x15\xc4\xb5\x1c',struct.pack('<i', len(self.order)),b''.join(self.serialize_bytes(x) for x in self.order),
+        ))
+
+    @classmethod
+    def from_reader(cls, reader):
+        reader.read_int()
+        _order = []
+        for _ in range(reader.read_int()):
+            _x = reader.tgread_string()
+            _order.append(_x)
+
+        return cls(order=_order)
 
 
 class ReportPeerRequest(TLRequest):
@@ -1712,31 +1818,35 @@ class SendConfirmPhoneCodeRequest(TLRequest):
 
 
 class SendVerifyEmailCodeRequest(TLRequest):
-    CONSTRUCTOR_ID = 0x7011509f
+    CONSTRUCTOR_ID = 0x98e037bb
     SUBCLASS_OF_ID = 0x69f3c06e
 
-    def __init__(self, email: str):
+    def __init__(self, purpose: 'TypeEmailVerifyPurpose', email: str):
         """
         :returns account.SentEmailCode: Instance of SentEmailCode.
         """
+        self.purpose = purpose
         self.email = email
 
     def to_dict(self):
         return {
             '_': 'SendVerifyEmailCodeRequest',
+            'purpose': self.purpose.to_dict() if isinstance(self.purpose, TLObject) else self.purpose,
             'email': self.email
         }
 
     def _bytes(self):
         return b''.join((
-            b'\x9fP\x11p',
+            b'\xbb7\xe0\x98',
+            self.purpose._bytes(),
             self.serialize_bytes(self.email),
         ))
 
     @classmethod
     def from_reader(cls, reader):
+        _purpose = reader.tgread_object()
         _email = reader.tgread_string()
-        return cls(email=_email)
+        return cls(purpose=_purpose, email=_email)
 
 
 class SendVerifyPhoneCodeRequest(TLRequest):
@@ -1950,6 +2060,38 @@ class SetPrivacyRequest(TLRequest):
         return cls(key=_key, rules=_rules)
 
 
+class ToggleUsernameRequest(TLRequest):
+    CONSTRUCTOR_ID = 0x58d6b376
+    SUBCLASS_OF_ID = 0xf5b399ac
+
+    def __init__(self, username: str, active: bool):
+        """
+        :returns Bool: This type has no constructors.
+        """
+        self.username = username
+        self.active = active
+
+    def to_dict(self):
+        return {
+            '_': 'ToggleUsernameRequest',
+            'username': self.username,
+            'active': self.active
+        }
+
+    def _bytes(self):
+        return b''.join((
+            b'v\xb3\xd6X',
+            self.serialize_bytes(self.username),
+            b'\xb5ur\x99' if self.active else b'7\x97y\xbc',
+        ))
+
+    @classmethod
+    def from_reader(cls, reader):
+        _username = reader.tgread_string()
+        _active = reader.tgread_bool()
+        return cls(username=_username, active=_active)
+
+
 class UnregisterDeviceRequest(TLRequest):
     CONSTRUCTOR_ID = 0x6a0d3206
     SUBCLASS_OF_ID = 0xf5b399ac
@@ -2017,6 +2159,34 @@ class UpdateDeviceLockedRequest(TLRequest):
     def from_reader(cls, reader):
         _period = reader.read_int()
         return cls(period=_period)
+
+
+class UpdateEmojiStatusRequest(TLRequest):
+    CONSTRUCTOR_ID = 0xfbd3de6b
+    SUBCLASS_OF_ID = 0xf5b399ac
+
+    def __init__(self, emoji_status: 'TypeEmojiStatus'):
+        """
+        :returns Bool: This type has no constructors.
+        """
+        self.emoji_status = emoji_status
+
+    def to_dict(self):
+        return {
+            '_': 'UpdateEmojiStatusRequest',
+            'emoji_status': self.emoji_status.to_dict() if isinstance(self.emoji_status, TLObject) else self.emoji_status
+        }
+
+    def _bytes(self):
+        return b''.join((
+            b'k\xde\xd3\xfb',
+            self.emoji_status._bytes(),
+        ))
+
+    @classmethod
+    def from_reader(cls, reader):
+        _emoji_status = reader.tgread_object()
+        return cls(emoji_status=_emoji_status)
 
 
 class UpdateNotifySettingsRequest(TLRequest):
@@ -2382,35 +2552,35 @@ class UploadWallPaperRequest(TLRequest):
 
 
 class VerifyEmailRequest(TLRequest):
-    CONSTRUCTOR_ID = 0xecba39db
-    SUBCLASS_OF_ID = 0xf5b399ac
+    CONSTRUCTOR_ID = 0x32da4cf
+    SUBCLASS_OF_ID = 0x64833188
 
-    def __init__(self, email: str, code: str):
+    def __init__(self, purpose: 'TypeEmailVerifyPurpose', verification: 'TypeEmailVerification'):
         """
-        :returns Bool: This type has no constructors.
+        :returns account.EmailVerified: Instance of either EmailVerified, EmailVerifiedLogin.
         """
-        self.email = email
-        self.code = code
+        self.purpose = purpose
+        self.verification = verification
 
     def to_dict(self):
         return {
             '_': 'VerifyEmailRequest',
-            'email': self.email,
-            'code': self.code
+            'purpose': self.purpose.to_dict() if isinstance(self.purpose, TLObject) else self.purpose,
+            'verification': self.verification.to_dict() if isinstance(self.verification, TLObject) else self.verification
         }
 
     def _bytes(self):
         return b''.join((
-            b'\xdb9\xba\xec',
-            self.serialize_bytes(self.email),
-            self.serialize_bytes(self.code),
+            b'\xcf\xa4-\x03',
+            self.purpose._bytes(),
+            self.verification._bytes(),
         ))
 
     @classmethod
     def from_reader(cls, reader):
-        _email = reader.tgread_string()
-        _code = reader.tgread_string()
-        return cls(email=_email, code=_code)
+        _purpose = reader.tgread_object()
+        _verification = reader.tgread_object()
+        return cls(purpose=_purpose, verification=_verification)
 
 
 class VerifyPhoneRequest(TLRequest):

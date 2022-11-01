@@ -5,7 +5,8 @@ import os
 import struct
 from datetime import datetime
 if TYPE_CHECKING:
-    from ...tl.types import TypeAuthorization, TypeAutoDownloadSettings, TypeChat, TypeDocument, TypePasswordKdfAlgo, TypePrivacyRule, TypeSecurePasswordKdfAlgo, TypeSecureRequiredType, TypeSecureSecretSettings, TypeSecureValue, TypeSecureValueError, TypeTheme, TypeUser, TypeWallPaper, TypeWebAuthorization
+    from ...tl.types import TypeAuthorization, TypeAutoDownloadSettings, TypeChat, TypeDocument, TypeEmojiStatus, TypePasswordKdfAlgo, TypePrivacyRule, TypeSecurePasswordKdfAlgo, TypeSecureRequiredType, TypeSecureSecretSettings, TypeSecureValue, TypeSecureValueError, TypeTheme, TypeUser, TypeWallPaper, TypeWebAuthorization
+    from ...tl.types.auth import TypeSentCode
 
 
 
@@ -185,11 +186,128 @@ class ContentSettings(TLObject):
         return cls(sensitive_enabled=_sensitive_enabled, sensitive_can_change=_sensitive_can_change)
 
 
+class EmailVerified(TLObject):
+    CONSTRUCTOR_ID = 0x2b96cd1b
+    SUBCLASS_OF_ID = 0x64833188
+
+    def __init__(self, email: str):
+        """
+        Constructor for account.EmailVerified: Instance of either EmailVerified, EmailVerifiedLogin.
+        """
+        self.email = email
+
+    def to_dict(self):
+        return {
+            '_': 'EmailVerified',
+            'email': self.email
+        }
+
+    def _bytes(self):
+        return b''.join((
+            b'\x1b\xcd\x96+',
+            self.serialize_bytes(self.email),
+        ))
+
+    @classmethod
+    def from_reader(cls, reader):
+        _email = reader.tgread_string()
+        return cls(email=_email)
+
+
+class EmailVerifiedLogin(TLObject):
+    CONSTRUCTOR_ID = 0xe1bb0d61
+    SUBCLASS_OF_ID = 0x64833188
+
+    def __init__(self, email: str, sent_code: 'TypeSentCode'):
+        """
+        Constructor for account.EmailVerified: Instance of either EmailVerified, EmailVerifiedLogin.
+        """
+        self.email = email
+        self.sent_code = sent_code
+
+    def to_dict(self):
+        return {
+            '_': 'EmailVerifiedLogin',
+            'email': self.email,
+            'sent_code': self.sent_code.to_dict() if isinstance(self.sent_code, TLObject) else self.sent_code
+        }
+
+    def _bytes(self):
+        return b''.join((
+            b'a\r\xbb\xe1',
+            self.serialize_bytes(self.email),
+            self.sent_code._bytes(),
+        ))
+
+    @classmethod
+    def from_reader(cls, reader):
+        _email = reader.tgread_string()
+        _sent_code = reader.tgread_object()
+        return cls(email=_email, sent_code=_sent_code)
+
+
+class EmojiStatuses(TLObject):
+    CONSTRUCTOR_ID = 0x90c467d1
+    SUBCLASS_OF_ID = 0xd3e005ca
+
+    # noinspection PyShadowingBuiltins
+    def __init__(self, hash: int, statuses: List['TypeEmojiStatus']):
+        """
+        Constructor for account.EmojiStatuses: Instance of either EmojiStatusesNotModified, EmojiStatuses.
+        """
+        self.hash = hash
+        self.statuses = statuses
+
+    def to_dict(self):
+        return {
+            '_': 'EmojiStatuses',
+            'hash': self.hash,
+            'statuses': [] if self.statuses is None else [x.to_dict() if isinstance(x, TLObject) else x for x in self.statuses]
+        }
+
+    def _bytes(self):
+        return b''.join((
+            b'\xd1g\xc4\x90',
+            struct.pack('<q', self.hash),
+            b'\x15\xc4\xb5\x1c',struct.pack('<i', len(self.statuses)),b''.join(x._bytes() for x in self.statuses),
+        ))
+
+    @classmethod
+    def from_reader(cls, reader):
+        _hash = reader.read_long()
+        reader.read_int()
+        _statuses = []
+        for _ in range(reader.read_int()):
+            _x = reader.tgread_object()
+            _statuses.append(_x)
+
+        return cls(hash=_hash, statuses=_statuses)
+
+
+class EmojiStatusesNotModified(TLObject):
+    CONSTRUCTOR_ID = 0xd08ce645
+    SUBCLASS_OF_ID = 0xd3e005ca
+
+    def to_dict(self):
+        return {
+            '_': 'EmojiStatusesNotModified'
+        }
+
+    def _bytes(self):
+        return b''.join((
+            b'E\xe6\x8c\xd0',
+        ))
+
+    @classmethod
+    def from_reader(cls, reader):
+        return cls()
+
+
 class Password(TLObject):
-    CONSTRUCTOR_ID = 0x185b184f
+    CONSTRUCTOR_ID = 0x957b50fb
     SUBCLASS_OF_ID = 0x53a211a3
 
-    def __init__(self, new_algo: 'TypePasswordKdfAlgo', new_secure_algo: 'TypeSecurePasswordKdfAlgo', secure_random: bytes, has_recovery: Optional[bool]=None, has_secure_values: Optional[bool]=None, has_password: Optional[bool]=None, current_algo: Optional['TypePasswordKdfAlgo']=None, srp_B: Optional[bytes]=None, srp_id: Optional[int]=None, hint: Optional[str]=None, email_unconfirmed_pattern: Optional[str]=None, pending_reset_date: Optional[datetime]=None):
+    def __init__(self, new_algo: 'TypePasswordKdfAlgo', new_secure_algo: 'TypeSecurePasswordKdfAlgo', secure_random: bytes, has_recovery: Optional[bool]=None, has_secure_values: Optional[bool]=None, has_password: Optional[bool]=None, current_algo: Optional['TypePasswordKdfAlgo']=None, srp_B: Optional[bytes]=None, srp_id: Optional[int]=None, hint: Optional[str]=None, email_unconfirmed_pattern: Optional[str]=None, pending_reset_date: Optional[datetime]=None, login_email_pattern: Optional[str]=None):
         """
         Constructor for account.Password: Instance of Password.
         """
@@ -205,6 +323,7 @@ class Password(TLObject):
         self.hint = hint
         self.email_unconfirmed_pattern = email_unconfirmed_pattern
         self.pending_reset_date = pending_reset_date
+        self.login_email_pattern = login_email_pattern
 
     def to_dict(self):
         return {
@@ -220,14 +339,15 @@ class Password(TLObject):
             'srp_id': self.srp_id,
             'hint': self.hint,
             'email_unconfirmed_pattern': self.email_unconfirmed_pattern,
-            'pending_reset_date': self.pending_reset_date
+            'pending_reset_date': self.pending_reset_date,
+            'login_email_pattern': self.login_email_pattern
         }
 
     def _bytes(self):
         assert ((self.has_password or self.has_password is not None) and (self.current_algo or self.current_algo is not None) and (self.srp_B or self.srp_B is not None) and (self.srp_id or self.srp_id is not None)) or ((self.has_password is None or self.has_password is False) and (self.current_algo is None or self.current_algo is False) and (self.srp_B is None or self.srp_B is False) and (self.srp_id is None or self.srp_id is False)), 'has_password, current_algo, srp_B, srp_id parameters must all be False-y (like None) or all me True-y'
         return b''.join((
-            b'O\x18[\x18',
-            struct.pack('<I', (0 if self.has_recovery is None or self.has_recovery is False else 1) | (0 if self.has_secure_values is None or self.has_secure_values is False else 2) | (0 if self.has_password is None or self.has_password is False else 4) | (0 if self.current_algo is None or self.current_algo is False else 4) | (0 if self.srp_B is None or self.srp_B is False else 4) | (0 if self.srp_id is None or self.srp_id is False else 4) | (0 if self.hint is None or self.hint is False else 8) | (0 if self.email_unconfirmed_pattern is None or self.email_unconfirmed_pattern is False else 16) | (0 if self.pending_reset_date is None or self.pending_reset_date is False else 32)),
+            b'\xfbP{\x95',
+            struct.pack('<I', (0 if self.has_recovery is None or self.has_recovery is False else 1) | (0 if self.has_secure_values is None or self.has_secure_values is False else 2) | (0 if self.has_password is None or self.has_password is False else 4) | (0 if self.current_algo is None or self.current_algo is False else 4) | (0 if self.srp_B is None or self.srp_B is False else 4) | (0 if self.srp_id is None or self.srp_id is False else 4) | (0 if self.hint is None or self.hint is False else 8) | (0 if self.email_unconfirmed_pattern is None or self.email_unconfirmed_pattern is False else 16) | (0 if self.pending_reset_date is None or self.pending_reset_date is False else 32) | (0 if self.login_email_pattern is None or self.login_email_pattern is False else 64)),
             b'' if self.current_algo is None or self.current_algo is False else (self.current_algo._bytes()),
             b'' if self.srp_B is None or self.srp_B is False else (self.serialize_bytes(self.srp_B)),
             b'' if self.srp_id is None or self.srp_id is False else (struct.pack('<q', self.srp_id)),
@@ -237,6 +357,7 @@ class Password(TLObject):
             self.new_secure_algo._bytes(),
             self.serialize_bytes(self.secure_random),
             b'' if self.pending_reset_date is None or self.pending_reset_date is False else (self.serialize_datetime(self.pending_reset_date)),
+            b'' if self.login_email_pattern is None or self.login_email_pattern is False else (self.serialize_bytes(self.login_email_pattern)),
         ))
 
     @classmethod
@@ -273,7 +394,11 @@ class Password(TLObject):
             _pending_reset_date = reader.tgread_date()
         else:
             _pending_reset_date = None
-        return cls(new_algo=_new_algo, new_secure_algo=_new_secure_algo, secure_random=_secure_random, has_recovery=_has_recovery, has_secure_values=_has_secure_values, has_password=_has_password, current_algo=_current_algo, srp_B=_srp_B, srp_id=_srp_id, hint=_hint, email_unconfirmed_pattern=_email_unconfirmed_pattern, pending_reset_date=_pending_reset_date)
+        if flags & 64:
+            _login_email_pattern = reader.tgread_string()
+        else:
+            _login_email_pattern = None
+        return cls(new_algo=_new_algo, new_secure_algo=_new_secure_algo, secure_random=_secure_random, has_recovery=_has_recovery, has_secure_values=_has_secure_values, has_password=_has_password, current_algo=_current_algo, srp_B=_srp_B, srp_id=_srp_id, hint=_hint, email_unconfirmed_pattern=_email_unconfirmed_pattern, pending_reset_date=_pending_reset_date, login_email_pattern=_login_email_pattern)
 
 
 class PasswordInputSettings(TLObject):

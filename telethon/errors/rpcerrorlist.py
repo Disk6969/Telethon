@@ -11,6 +11,156 @@ class TwoFaConfirmWaitError(FloodError):
         return type(self), (self.request, self.seconds)
 
 
+class EmailUnconfirmedError(BadRequestError):
+    def __init__(self, request, capture=0):
+        self.request = request
+        self.code_length = int(capture)
+        super(Exception, self).__init__('Email unconfirmed, the length of the code must be {code_length}'.format(code_length=self.code_length) + self._fmt_request(self.request))
+
+    def __reduce__(self):
+        return type(self), (self.request, self.code_length)
+
+
+class FileMigrateError(InvalidDCError):
+    def __init__(self, request, capture=0):
+        self.request = request
+        self.new_dc = int(capture)
+        super(Exception, self).__init__('The file to be accessed is currently stored in DC {new_dc}'.format(new_dc=self.new_dc) + self._fmt_request(self.request))
+
+    def __reduce__(self):
+        return type(self), (self.request, self.new_dc)
+
+
+class FilePartMissingError(BadRequestError):
+    def __init__(self, request, capture=0):
+        self.request = request
+        self.which = int(capture)
+        super(Exception, self).__init__('Part {which} of the file is missing from storage'.format(which=self.which) + self._fmt_request(self.request))
+
+    def __reduce__(self):
+        return type(self), (self.request, self.which)
+
+
+class FloodTestPhoneWaitError(FloodError):
+    def __init__(self, request, capture=0):
+        self.request = request
+        self.seconds = int(capture)
+        super(Exception, self).__init__('A wait of {seconds} seconds is required in the test servers'.format(seconds=self.seconds) + self._fmt_request(self.request))
+
+    def __reduce__(self):
+        return type(self), (self.request, self.seconds)
+
+
+class FloodWaitError(FloodError):
+    def __init__(self, request, capture=0):
+        self.request = request
+        self.seconds = int(capture)
+        super(Exception, self).__init__('A wait of {seconds} seconds is required'.format(seconds=self.seconds) + self._fmt_request(self.request))
+
+    def __reduce__(self):
+        return type(self), (self.request, self.seconds)
+
+
+class InterdcCallErrorError(ServerError):
+    def __init__(self, request, capture=0):
+        self.request = request
+        self.dc = int(capture)
+        super(Exception, self).__init__('An error occurred while communicating with DC {dc}'.format(dc=self.dc) + self._fmt_request(self.request))
+
+    def __reduce__(self):
+        return type(self), (self.request, self.dc)
+
+
+class InterdcCallRichErrorError(ServerError):
+    def __init__(self, request, capture=0):
+        self.request = request
+        self.dc = int(capture)
+        super(Exception, self).__init__('A rich error occurred while communicating with DC {dc}'.format(dc=self.dc) + self._fmt_request(self.request))
+
+    def __reduce__(self):
+        return type(self), (self.request, self.dc)
+
+
+class NetworkMigrateError(InvalidDCError):
+    def __init__(self, request, capture=0):
+        self.request = request
+        self.new_dc = int(capture)
+        super(Exception, self).__init__('The source IP address is associated with DC {new_dc}'.format(new_dc=self.new_dc) + self._fmt_request(self.request))
+
+    def __reduce__(self):
+        return type(self), (self.request, self.new_dc)
+
+
+class PasswordTooFreshError(BadRequestError):
+    def __init__(self, request, capture=0):
+        self.request = request
+        self.seconds = int(capture)
+        super(Exception, self).__init__('The password was added too recently and {seconds} seconds must pass before using the method'.format(seconds=self.seconds) + self._fmt_request(self.request))
+
+    def __reduce__(self):
+        return type(self), (self.request, self.seconds)
+
+
+class PhoneMigrateError(InvalidDCError):
+    def __init__(self, request, capture=0):
+        self.request = request
+        self.new_dc = int(capture)
+        super(Exception, self).__init__('The phone number a user is trying to use for authorization is associated with DC {new_dc}'.format(new_dc=self.new_dc) + self._fmt_request(self.request))
+
+    def __reduce__(self):
+        return type(self), (self.request, self.new_dc)
+
+
+class SessionTooFreshError(BadRequestError):
+    def __init__(self, request, capture=0):
+        self.request = request
+        self.seconds = int(capture)
+        super(Exception, self).__init__('The session logged in too recently and {seconds} seconds must pass before calling the method'.format(seconds=self.seconds) + self._fmt_request(self.request))
+
+    def __reduce__(self):
+        return type(self), (self.request, self.seconds)
+
+
+class SlowModeWaitError(FloodError):
+    def __init__(self, request, capture=0):
+        self.request = request
+        self.seconds = int(capture)
+        super(Exception, self).__init__('A wait of {seconds} seconds is required before sending another message in this chat'.format(seconds=self.seconds) + self._fmt_request(self.request))
+
+    def __reduce__(self):
+        return type(self), (self.request, self.seconds)
+
+
+class StatsMigrateError(InvalidDCError):
+    def __init__(self, request, capture=0):
+        self.request = request
+        self.dc = int(capture)
+        super(Exception, self).__init__('The channel statistics must be fetched from DC {dc}'.format(dc=self.dc) + self._fmt_request(self.request))
+
+    def __reduce__(self):
+        return type(self), (self.request, self.dc)
+
+
+class TakeoutInitDelayError(FloodError):
+    def __init__(self, request, capture=0):
+        self.request = request
+        self.seconds = int(capture)
+        super(Exception, self).__init__('A wait of {seconds} seconds is required before being able to initiate the takeout'.format(seconds=self.seconds) + self._fmt_request(self.request))
+
+    def __reduce__(self):
+        return type(self), (self.request, self.seconds)
+
+
+class UserMigrateError(InvalidDCError):
+    def __init__(self, request, capture=0):
+        self.request = request
+        self.new_dc = int(capture)
+        super(Exception, self).__init__('The user whose identity is being used to execute queries is associated with DC {new_dc}'.format(new_dc=self.new_dc) + self._fmt_request(self.request))
+
+    def __reduce__(self):
+        return type(self), (self.request, self.new_dc)
+
+
 class AboutTooLongError(BadRequestError):
     def __init__(self, request):
         self.request = request
@@ -110,19 +260,19 @@ class ArticleTitleEmptyError(BadRequestError):
         return type(self), (self.request,)
 
 
-class AudioContentUrlEmptyError(BadRequestError):
+class AudioTitleEmptyError(BadRequestError):
     def __init__(self, request):
         self.request = request
-        super(Exception, self).__init__('' + self._fmt_request(self.request))
+        super(Exception, self).__init__('The title attribute of the audio must be non-empty' + self._fmt_request(self.request))
 
     def __reduce__(self):
         return type(self), (self.request,)
 
 
-class AudioTitleEmptyError(BadRequestError):
+class AudioContentUrlEmptyError(BadRequestError):
     def __init__(self, request):
         self.request = request
-        super(Exception, self).__init__('The title attribute of the audio must be non-empty' + self._fmt_request(self.request))
+        super(Exception, self).__init__('' + self._fmt_request(self.request))
 
     def __reduce__(self):
         return type(self), (self.request,)
@@ -227,15 +377,6 @@ class BankCardNumberInvalidError(BadRequestError):
         return type(self), (self.request,)
 
 
-class BannedRightsInvalidError(BadRequestError):
-    def __init__(self, request):
-        self.request = request
-        super(Exception, self).__init__('You cannot use that set of permissions in this request, i.e. restricting view_messages as a default' + self._fmt_request(self.request))
-
-    def __reduce__(self):
-        return type(self), (self.request,)
-
-
 class BasePortLocInvalidError(BadRequestError):
     def __init__(self, request):
         self.request = request
@@ -245,10 +386,28 @@ class BasePortLocInvalidError(BadRequestError):
         return type(self), (self.request,)
 
 
+class BannedRightsInvalidError(BadRequestError):
+    def __init__(self, request):
+        self.request = request
+        super(Exception, self).__init__('You cannot use that set of permissions in this request, i.e. restricting view_messages as a default' + self._fmt_request(self.request))
+
+    def __reduce__(self):
+        return type(self), (self.request,)
+
+
 class BotsTooMuchError(BadRequestError):
     def __init__(self, request):
         self.request = request
         super(Exception, self).__init__('There are too many bots in this chat/channel' + self._fmt_request(self.request))
+
+    def __reduce__(self):
+        return type(self), (self.request,)
+
+
+class BotOnesideNotAvailError(BadRequestError):
+    def __init__(self, request):
+        self.request = request
+        super(Exception, self).__init__('' + self._fmt_request(self.request))
 
     def __reduce__(self):
         return type(self), (self.request,)
@@ -339,15 +498,6 @@ class BotMissingError(BadRequestError):
     def __init__(self, request):
         self.request = request
         super(Exception, self).__init__('This method can only be run by a bot' + self._fmt_request(self.request))
-
-    def __reduce__(self):
-        return type(self), (self.request,)
-
-
-class BotOnesideNotAvailError(BadRequestError):
-    def __init__(self, request):
-        self.request = request
-        super(Exception, self).__init__('' + self._fmt_request(self.request))
 
     def __reduce__(self):
         return type(self), (self.request,)
@@ -515,19 +665,19 @@ class CdnMethodInvalidError(BadRequestError):
         return type(self), (self.request,)
 
 
-class ChannelsAdminLocatedTooMuchError(BadRequestError):
+class ChannelsAdminPublicTooMuchError(BadRequestError):
     def __init__(self, request):
         self.request = request
-        super(Exception, self).__init__('' + self._fmt_request(self.request))
+        super(Exception, self).__init__("You're admin of too many public channels, make some channels private to change the username of this channel" + self._fmt_request(self.request))
 
     def __reduce__(self):
         return type(self), (self.request,)
 
 
-class ChannelsAdminPublicTooMuchError(BadRequestError):
+class ChannelsAdminLocatedTooMuchError(BadRequestError):
     def __init__(self, request):
         self.request = request
-        super(Exception, self).__init__("You're admin of too many public channels, make some channels private to change the username of this channel" + self._fmt_request(self.request))
+        super(Exception, self).__init__('' + self._fmt_request(self.request))
 
     def __reduce__(self):
         return type(self), (self.request,)
@@ -644,7 +794,7 @@ class ChatForbiddenError(ForbiddenError):
 class ChatForwardsRestrictedError(BadRequestError):
     def __init__(self, request):
         self.request = request
-        super(Exception, self).__init__('You cannot forward from this chat' + self._fmt_request(self.request))
+        super(Exception, self).__init__('' + self._fmt_request(self.request))
 
     def __reduce__(self):
         return type(self), (self.request,)
@@ -965,16 +1115,6 @@ class EmailInvalidError(BadRequestError):
         return type(self), (self.request,)
 
 
-class EmailUnconfirmedError(BadRequestError):
-    def __init__(self, request, capture=0):
-        self.request = request
-        self.code_length = int(capture)
-        super(Exception, self).__init__('Email unconfirmed, the length of the code must be {code_length}'.format(code_length=self.code_length) + self._fmt_request(self.request))
-
-    def __reduce__(self):
-        return type(self), (self.request, self.code_length)
-
-
 class EmojiInvalidError(BadRequestError):
     def __init__(self, request):
         self.request = request
@@ -1083,15 +1223,6 @@ class EntitiesTooLongError(BadRequestError):
         return type(self), (self.request,)
 
 
-class EntityBoundsInvalidError(BadRequestError):
-    def __init__(self, request):
-        self.request = request
-        super(Exception, self).__init__('Some of provided entities have invalid bounds (length is zero or out of the boundaries of the string)' + self._fmt_request(self.request))
-
-    def __reduce__(self):
-        return type(self), (self.request,)
-
-
 class EntityMentionUserInvalidError(BadRequestError):
     def __init__(self, request):
         self.request = request
@@ -1191,16 +1322,6 @@ class FileIdInvalidError(BadRequestError):
         return type(self), (self.request,)
 
 
-class FileMigrateError(InvalidDCError):
-    def __init__(self, request, capture=0):
-        self.request = request
-        self.new_dc = int(capture)
-        super(Exception, self).__init__('The file to be accessed is currently stored in DC {new_dc}'.format(new_dc=self.new_dc) + self._fmt_request(self.request))
-
-    def __reduce__(self):
-        return type(self), (self.request, self.new_dc)
-
-
 class FilePartsInvalidError(BadRequestError):
     def __init__(self, request):
         self.request = request
@@ -1255,16 +1376,6 @@ class FilePartSizeInvalidError(BadRequestError):
         return type(self), (self.request,)
 
 
-class FilePartMissingError(BadRequestError):
-    def __init__(self, request, capture=0):
-        self.request = request
-        self.which = int(capture)
-        super(Exception, self).__init__('Part {which} of the file is missing from storage'.format(which=self.which) + self._fmt_request(self.request))
-
-    def __reduce__(self):
-        return type(self), (self.request, self.which)
-
-
 class FileReferenceEmptyError(BadRequestError):
     def __init__(self, request):
         self.request = request
@@ -1301,15 +1412,6 @@ class FileTitleEmptyError(BadRequestError):
         return type(self), (self.request,)
 
 
-class FilterNotSupportedError(BadRequestError):
-    def __init__(self, request):
-        self.request = request
-        super(Exception, self).__init__('' + self._fmt_request(self.request))
-
-    def __reduce__(self):
-        return type(self), (self.request,)
-
-
 class FirstNameInvalidError(BadRequestError):
     def __init__(self, request):
         self.request = request
@@ -1319,24 +1421,13 @@ class FirstNameInvalidError(BadRequestError):
         return type(self), (self.request,)
 
 
-class FloodTestPhoneWaitError(FloodError):
-    def __init__(self, request, capture=0):
+class FilterNotSupportedError(BadRequestError):
+    def __init__(self, request):
         self.request = request
-        self.seconds = int(capture)
-        super(Exception, self).__init__('A wait of {seconds} seconds is required in the test servers'.format(seconds=self.seconds) + self._fmt_request(self.request))
+        super(Exception, self).__init__('' + self._fmt_request(self.request))
 
     def __reduce__(self):
-        return type(self), (self.request, self.seconds)
-
-
-class FloodWaitError(FloodError):
-    def __init__(self, request, capture=0):
-        self.request = request
-        self.seconds = int(capture)
-        super(Exception, self).__init__('A wait of {seconds} seconds is required'.format(seconds=self.seconds) + self._fmt_request(self.request))
-
-    def __reduce__(self):
-        return type(self), (self.request, self.seconds)
+        return type(self), (self.request,)
 
 
 class FolderIdEmptyError(BadRequestError):
@@ -1483,7 +1574,7 @@ class GroupcallJoinMissingError(BadRequestError):
         return type(self), (self.request,)
 
 
-class GroupcallNotModifiedError(BadRequestError):
+class GroupcallSsrcDuplicateMuchError(BadRequestError):
     def __init__(self, request):
         self.request = request
         super(Exception, self).__init__('' + self._fmt_request(self.request))
@@ -1492,7 +1583,7 @@ class GroupcallNotModifiedError(BadRequestError):
         return type(self), (self.request,)
 
 
-class GroupcallSsrcDuplicateMuchError(BadRequestError):
+class GroupcallNotModifiedError(BadRequestError):
     def __init__(self, request):
         self.request = request
         super(Exception, self).__init__('' + self._fmt_request(self.request))
@@ -1661,26 +1752,6 @@ class InputUserDeactivatedError(BadRequestError):
 
     def __reduce__(self):
         return type(self), (self.request,)
-
-
-class InterdcCallErrorError(ServerError):
-    def __init__(self, request, capture=0):
-        self.request = request
-        self.dc = int(capture)
-        super(Exception, self).__init__('An error occurred while communicating with DC {dc}'.format(dc=self.dc) + self._fmt_request(self.request))
-
-    def __reduce__(self):
-        return type(self), (self.request, self.dc)
-
-
-class InterdcCallRichErrorError(ServerError):
-    def __init__(self, request, capture=0):
-        self.request = request
-        self.dc = int(capture)
-        super(Exception, self).__init__('A rich error occurred while communicating with DC {dc}'.format(dc=self.dc) + self._fmt_request(self.request))
-
-    def __reduce__(self):
-        return type(self), (self.request, self.dc)
 
 
 class InviteForbiddenWithJoinasError(BadRequestError):
@@ -2070,16 +2141,6 @@ class NeedMemberInvalidError(ServerError):
         return type(self), (self.request,)
 
 
-class NetworkMigrateError(InvalidDCError):
-    def __init__(self, request, capture=0):
-        self.request = request
-        self.new_dc = int(capture)
-        super(Exception, self).__init__('The source IP address is associated with DC {new_dc}'.format(new_dc=self.new_dc) + self._fmt_request(self.request))
-
-    def __reduce__(self):
-        return type(self), (self.request, self.new_dc)
-
-
 class NewSaltInvalidError(BadRequestError):
     def __init__(self, request):
         self.request = request
@@ -2179,7 +2240,7 @@ class ParticipantCallFailedError(ServerError):
         return type(self), (self.request,)
 
 
-class ParticipantIdInvalidError(BadRequestError):
+class ParticipantJoinMissingError(ForbiddenError):
     def __init__(self, request):
         self.request = request
         super(Exception, self).__init__('' + self._fmt_request(self.request))
@@ -2188,7 +2249,7 @@ class ParticipantIdInvalidError(BadRequestError):
         return type(self), (self.request,)
 
 
-class ParticipantJoinMissingError(ForbiddenError):
+class ParticipantIdInvalidError(BadRequestError):
     def __init__(self, request):
         self.request = request
         super(Exception, self).__init__('' + self._fmt_request(self.request))
@@ -2258,16 +2319,6 @@ class PasswordRequiredError(BadRequestError):
 
     def __reduce__(self):
         return type(self), (self.request,)
-
-
-class PasswordTooFreshError(BadRequestError):
-    def __init__(self, request, capture=0):
-        self.request = request
-        self.seconds = int(capture)
-        super(Exception, self).__init__('The password was added too recently and {seconds} seconds must pass before using the method'.format(seconds=self.seconds) + self._fmt_request(self.request))
-
-    def __reduce__(self):
-        return type(self), (self.request, self.seconds)
 
 
 class PaymentProviderInvalidError(BadRequestError):
@@ -2367,16 +2418,6 @@ class PhoneCodeInvalidError(BadRequestError):
 
     def __reduce__(self):
         return type(self), (self.request,)
-
-
-class PhoneMigrateError(InvalidDCError):
-    def __init__(self, request, capture=0):
-        self.request = request
-        self.new_dc = int(capture)
-        super(Exception, self).__init__('The phone number a user is trying to use for authorization is associated with DC {new_dc}'.format(new_dc=self.new_dc) + self._fmt_request(self.request))
-
-    def __reduce__(self):
-        return type(self), (self.request, self.new_dc)
 
 
 class PhoneNotOccupiedError(BadRequestError):
@@ -2550,15 +2591,6 @@ class PhotoThumbUrlEmptyError(BadRequestError):
         return type(self), (self.request,)
 
 
-class PinnedDialogsTooMuchError(BadRequestError):
-    def __init__(self, request):
-        self.request = request
-        super(Exception, self).__init__('' + self._fmt_request(self.request))
-
-    def __reduce__(self):
-        return type(self), (self.request,)
-
-
 class PinRestrictedError(BadRequestError):
     def __init__(self, request):
         self.request = request
@@ -2568,10 +2600,10 @@ class PinRestrictedError(BadRequestError):
         return type(self), (self.request,)
 
 
-class PollAnswersInvalidError(BadRequestError):
+class PinnedDialogsTooMuchError(BadRequestError):
     def __init__(self, request):
         self.request = request
-        super(Exception, self).__init__('The poll did not have enough answers or had too many' + self._fmt_request(self.request))
+        super(Exception, self).__init__('' + self._fmt_request(self.request))
 
     def __reduce__(self):
         return type(self), (self.request,)
@@ -2581,6 +2613,15 @@ class PollAnswerInvalidError(BadRequestError):
     def __init__(self, request):
         self.request = request
         super(Exception, self).__init__('' + self._fmt_request(self.request))
+
+    def __reduce__(self):
+        return type(self), (self.request,)
+
+
+class PollAnswersInvalidError(BadRequestError):
+    def __init__(self, request):
+        self.request = request
+        super(Exception, self).__init__('The poll did not have enough answers or had too many' + self._fmt_request(self.request))
 
     def __reduce__(self):
         return type(self), (self.request,)
@@ -2626,24 +2667,6 @@ class PollVoteRequiredError(ForbiddenError):
     def __init__(self, request):
         self.request = request
         super(Exception, self).__init__('' + self._fmt_request(self.request))
-
-    def __reduce__(self):
-        return type(self), (self.request,)
-
-
-class PostponedTimeoutError(ServerError):
-    def __init__(self, request):
-        self.request = request
-        super(Exception, self).__init__('The postponed call has timed out' + self._fmt_request(self.request))
-
-    def __reduce__(self):
-        return type(self), (self.request,)
-
-
-class PremiumAccountRequiredError(ForbiddenError):
-    def __init__(self, request):
-        self.request = request
-        super(Exception, self).__init__('Premium subscription is required to use that feature' + self._fmt_request(self.request))
 
     def __reduce__(self):
         return type(self), (self.request,)
@@ -3108,16 +3131,6 @@ class SessionRevokedError(UnauthorizedError):
         return type(self), (self.request,)
 
 
-class SessionTooFreshError(BadRequestError):
-    def __init__(self, request, capture=0):
-        self.request = request
-        self.seconds = int(capture)
-        super(Exception, self).__init__('The session logged in too recently and {seconds} seconds must pass before calling the method'.format(seconds=self.seconds) + self._fmt_request(self.request))
-
-    def __reduce__(self):
-        return type(self), (self.request, self.seconds)
-
-
 class Sha256HashInvalidError(BadRequestError):
     def __init__(self, request):
         self.request = request
@@ -3163,16 +3176,6 @@ class SlowModeMultiMsgsDisabledError(BadRequestError):
         return type(self), (self.request,)
 
 
-class SlowModeWaitError(FloodError):
-    def __init__(self, request, capture=0):
-        self.request = request
-        self.seconds = int(capture)
-        super(Exception, self).__init__('A wait of {seconds} seconds is required before sending another message in this chat'.format(seconds=self.seconds) + self._fmt_request(self.request))
-
-    def __reduce__(self):
-        return type(self), (self.request, self.seconds)
-
-
 class SrpIdInvalidError(BadRequestError):
     def __init__(self, request):
         self.request = request
@@ -3198,16 +3201,6 @@ class StartParamInvalidError(BadRequestError):
 
     def __reduce__(self):
         return type(self), (self.request,)
-
-
-class StatsMigrateError(InvalidDCError):
-    def __init__(self, request, capture=0):
-        self.request = request
-        self.dc = int(capture)
-        super(Exception, self).__init__('The channel statistics must be fetched from DC {dc}'.format(dc=self.dc) + self._fmt_request(self.request))
-
-    def __reduce__(self):
-        return type(self), (self.request, self.dc)
 
 
 class StickerpackStickersTooMuchError(BadRequestError):
@@ -3363,7 +3356,7 @@ class StickerThumbTgsNotgsError(BadRequestError):
         return type(self), (self.request,)
 
 
-class StickerVideoBigError(BadRequestError):
+class StickerVideoNowebmError(BadRequestError):
     def __init__(self, request):
         self.request = request
         super(Exception, self).__init__('' + self._fmt_request(self.request))
@@ -3372,7 +3365,7 @@ class StickerVideoBigError(BadRequestError):
         return type(self), (self.request,)
 
 
-class StickerVideoNowebmError(BadRequestError):
+class StickerVideoBigError(BadRequestError):
     def __init__(self, request):
         self.request = request
         super(Exception, self).__init__('' + self._fmt_request(self.request))
@@ -3397,16 +3390,6 @@ class StoreInvalidScalarTypeError(ServerError):
 
     def __reduce__(self):
         return type(self), (self.request,)
-
-
-class TakeoutInitDelayError(FloodError):
-    def __init__(self, request, capture=0):
-        self.request = request
-        self.seconds = int(capture)
-        super(Exception, self).__init__('A wait of {seconds} seconds is required before being able to initiate the takeout'.format(seconds=self.seconds) + self._fmt_request(self.request))
-
-    def __reduce__(self):
-        return type(self), (self.request, self.seconds)
 
 
 class TakeoutInvalidError(BadRequestError):
@@ -3436,24 +3419,6 @@ class TempAuthKeyEmptyError(BadRequestError):
         return type(self), (self.request,)
 
 
-class ThemeInvalidError(BadRequestError):
-    def __init__(self, request):
-        self.request = request
-        super(Exception, self).__init__('Theme invalid' + self._fmt_request(self.request))
-
-    def __reduce__(self):
-        return type(self), (self.request,)
-
-
-class ThemeMimeInvalidError(BadRequestError):
-    def __init__(self, request):
-        self.request = request
-        super(Exception, self).__init__('You cannot create this theme, the mime-type is invalid' + self._fmt_request(self.request))
-
-    def __reduce__(self):
-        return type(self), (self.request,)
-
-
 class TimeoutError(ServerError):
     def __init__(self, request):
         self.request = request
@@ -3467,6 +3432,24 @@ class TitleInvalidError(BadRequestError):
     def __init__(self, request):
         self.request = request
         super(Exception, self).__init__('' + self._fmt_request(self.request))
+
+    def __reduce__(self):
+        return type(self), (self.request,)
+
+
+class ThemeInvalidError(BadRequestError):
+    def __init__(self, request):
+        self.request = request
+        super(Exception, self).__init__('Theme invalid' + self._fmt_request(self.request))
+
+    def __reduce__(self):
+        return type(self), (self.request,)
+
+
+class ThemeMimeInvalidError(BadRequestError):
+    def __init__(self, request):
+        self.request = request
+        super(Exception, self).__init__('You cannot create this theme, the mime-type is invalid' + self._fmt_request(self.request))
 
     def __reduce__(self):
         return type(self), (self.request,)
@@ -3598,6 +3581,15 @@ class UsageLimitInvalidError(BadRequestError):
         return type(self), (self.request,)
 
 
+class UserVolumeInvalidError(BadRequestError):
+    def __init__(self, request):
+        self.request = request
+        super(Exception, self).__init__('' + self._fmt_request(self.request))
+
+    def __reduce__(self):
+        return type(self), (self.request,)
+
+
 class UsernameInvalidError(BadRequestError):
     def __init__(self, request):
         self.request = request
@@ -3629,15 +3621,6 @@ class UsernameOccupiedError(BadRequestError):
     def __init__(self, request):
         self.request = request
         super(Exception, self).__init__('The username is already taken' + self._fmt_request(self.request))
-
-    def __reduce__(self):
-        return type(self), (self.request,)
-
-
-class UserpicUploadRequiredError(BadRequestError):
-    def __init__(self, request):
-        self.request = request
-        super(Exception, self).__init__('You must have a profile picture before using this method' + self._fmt_request(self.request))
 
     def __reduce__(self):
         return type(self), (self.request,)
@@ -3814,16 +3797,6 @@ class UserKickedError(BadRequestError):
         return type(self), (self.request,)
 
 
-class UserMigrateError(InvalidDCError):
-    def __init__(self, request, capture=0):
-        self.request = request
-        self.new_dc = int(capture)
-        super(Exception, self).__init__('The user whose identity is being used to execute queries is associated with DC {new_dc}'.format(new_dc=self.new_dc) + self._fmt_request(self.request))
-
-    def __reduce__(self):
-        return type(self), (self.request, self.new_dc)
-
-
 class UserNotMutualContactError(BadRequestError):
     def __init__(self, request):
         self.request = request
@@ -3860,10 +3833,10 @@ class UserRestrictedError(ForbiddenError):
         return type(self), (self.request,)
 
 
-class UserVolumeInvalidError(BadRequestError):
+class UserpicUploadRequiredError(BadRequestError):
     def __init__(self, request):
         self.request = request
-        super(Exception, self).__init__('' + self._fmt_request(self.request))
+        super(Exception, self).__init__('You must have a profile picture before using this method' + self._fmt_request(self.request))
 
     def __reduce__(self):
         return type(self), (self.request,)
@@ -3998,8 +3971,8 @@ rpc_errors_dict = {
     'API_ID_INVALID': ApiIdInvalidError,
     'API_ID_PUBLISHED_FLOOD': ApiIdPublishedFloodError,
     'ARTICLE_TITLE_EMPTY': ArticleTitleEmptyError,
-    'AUDIO_CONTENT_URL_EMPTY': AudioContentUrlEmptyError,
     'AUDIO_TITLE_EMPTY': AudioTitleEmptyError,
+    'AUDIO_CONTENT_URL_EMPTY': AudioContentUrlEmptyError,
     'AUTH_BYTES_INVALID': AuthBytesInvalidError,
     'AUTH_KEY_DUPLICATED': AuthKeyDuplicatedError,
     'AUTH_KEY_INVALID': AuthKeyInvalidError,
@@ -4011,9 +3984,10 @@ rpc_errors_dict = {
     'AUTH_TOKEN_INVALID': AuthTokenInvalidError,
     'AUTOARCHIVE_NOT_AVAILABLE': AutoarchiveNotAvailableError,
     'BANK_CARD_NUMBER_INVALID': BankCardNumberInvalidError,
-    'BANNED_RIGHTS_INVALID': BannedRightsInvalidError,
     'BASE_PORT_LOC_INVALID': BasePortLocInvalidError,
+    'BANNED_RIGHTS_INVALID': BannedRightsInvalidError,
     'BOTS_TOO_MUCH': BotsTooMuchError,
+    'BOT_ONESIDE_NOT_AVAIL': BotOnesideNotAvailError,
     'BOT_CHANNELS_NA': BotChannelsNaError,
     'BOT_COMMAND_DESCRIPTION_INVALID': BotCommandDescriptionInvalidError,
     'BOT_COMMAND_INVALID': BotCommandInvalidError,
@@ -4024,7 +3998,6 @@ rpc_errors_dict = {
     'BOT_INVALID': BotInvalidError,
     'BOT_METHOD_INVALID': BotMethodInvalidError,
     'BOT_MISSING': BotMissingError,
-    'BOT_ONESIDE_NOT_AVAIL': BotOnesideNotAvailError,
     'BOT_PAYMENTS_DISABLED': BotPaymentsDisabledError,
     'BOT_POLLS_DISABLED': BotPollsDisabledError,
     'BOT_RESPONSE_TIMEOUT': BotResponseTimeoutError,
@@ -4043,8 +4016,8 @@ rpc_errors_dict = {
     'CALL_PEER_INVALID': CallPeerInvalidError,
     'CALL_PROTOCOL_FLAGS_INVALID': CallProtocolFlagsInvalidError,
     'CDN_METHOD_INVALID': CdnMethodInvalidError,
-    'CHANNELS_ADMIN_LOCATED_TOO_MUCH': ChannelsAdminLocatedTooMuchError,
     'CHANNELS_ADMIN_PUBLIC_TOO_MUCH': ChannelsAdminPublicTooMuchError,
+    'CHANNELS_ADMIN_LOCATED_TOO_MUCH': ChannelsAdminLocatedTooMuchError,
     'CHANNELS_TOO_MUCH': ChannelsTooMuchError,
     'CHANNEL_ADD_INVALID': ChannelAddInvalidError,
     'CHANNEL_BANNED': ChannelBannedError,
@@ -4105,7 +4078,6 @@ rpc_errors_dict = {
     'ENCRYPTION_ID_INVALID': EncryptionIdInvalidError,
     'ENCRYPTION_OCCUPY_FAILED': EncryptionOccupyFailedError,
     'ENTITIES_TOO_LONG': EntitiesTooLongError,
-    'ENTITY_BOUNDS_INVALID': EntityBoundsInvalidError,
     'ENTITY_MENTION_USER_INVALID': EntityMentionUserInvalidError,
     'ERROR_TEXT_EMPTY': ErrorTextEmptyError,
     'EXPIRE_DATE_INVALID': ExpireDateInvalidError,
@@ -4127,8 +4099,8 @@ rpc_errors_dict = {
     'FILE_REFERENCE_EXPIRED': FileReferenceExpiredError,
     'FILE_REFERENCE_INVALID': FileReferenceInvalidError,
     'FILE_TITLE_EMPTY': FileTitleEmptyError,
-    'FILTER_NOT_SUPPORTED': FilterNotSupportedError,
     'FIRSTNAME_INVALID': FirstNameInvalidError,
+    'FILTER_NOT_SUPPORTED': FilterNotSupportedError,
     'FOLDER_ID_EMPTY': FolderIdEmptyError,
     'FOLDER_ID_INVALID': FolderIdInvalidError,
     'FRESH_CHANGE_ADMINS_FORBIDDEN': FreshChangeAdminsForbiddenError,
@@ -4145,8 +4117,8 @@ rpc_errors_dict = {
     'GROUPCALL_FORBIDDEN': GroupcallForbiddenError,
     'GROUPCALL_INVALID': GroupcallInvalidError,
     'GROUPCALL_JOIN_MISSING': GroupcallJoinMissingError,
-    'GROUPCALL_NOT_MODIFIED': GroupcallNotModifiedError,
     'GROUPCALL_SSRC_DUPLICATE_MUCH': GroupcallSsrcDuplicateMuchError,
+    'GROUPCALL_NOT_MODIFIED': GroupcallNotModifiedError,
     'GROUPED_MEDIA_INVALID': GroupedMediaInvalidError,
     'GROUP_CALL_INVALID': GroupCallInvalidError,
     'HASH_INVALID': HashInvalidError,
@@ -4219,8 +4191,8 @@ rpc_errors_dict = {
     'PACK_SHORT_NAME_OCCUPIED': PackShortNameOccupiedError,
     'PARTICIPANTS_TOO_FEW': ParticipantsTooFewError,
     'PARTICIPANT_CALL_FAILED': ParticipantCallFailedError,
-    'PARTICIPANT_ID_INVALID': ParticipantIdInvalidError,
     'PARTICIPANT_JOIN_MISSING': ParticipantJoinMissingError,
+    'PARTICIPANT_ID_INVALID': ParticipantIdInvalidError,
     'PARTICIPANT_VERSION_OUTDATED': ParticipantVersionOutdatedError,
     'PASSWORD_EMPTY': PasswordEmptyError,
     'PASSWORD_HASH_INVALID': PasswordHashInvalidError,
@@ -4258,17 +4230,15 @@ rpc_errors_dict = {
     'PHOTO_INVALID_DIMENSIONS': PhotoInvalidDimensionsError,
     'PHOTO_SAVE_FILE_INVALID': PhotoSaveFileInvalidError,
     'PHOTO_THUMB_URL_EMPTY': PhotoThumbUrlEmptyError,
-    'PINNED_DIALOGS_TOO_MUCH': PinnedDialogsTooMuchError,
     'PIN_RESTRICTED': PinRestrictedError,
-    'POLL_ANSWERS_INVALID': PollAnswersInvalidError,
+    'PINNED_DIALOGS_TOO_MUCH': PinnedDialogsTooMuchError,
     'POLL_ANSWER_INVALID': PollAnswerInvalidError,
+    'POLL_ANSWERS_INVALID': PollAnswersInvalidError,
     'POLL_OPTION_DUPLICATE': PollOptionDuplicateError,
     'POLL_OPTION_INVALID': PollOptionInvalidError,
     'POLL_QUESTION_INVALID': PollQuestionInvalidError,
     'POLL_UNSUPPORTED': PollUnsupportedError,
     'POLL_VOTE_REQUIRED': PollVoteRequiredError,
-    'POSTPONED_TIMEOUT': PostponedTimeoutError,
-    'PREMIUM_ACCOUNT_REQUIRED': PremiumAccountRequiredError,
     'PREVIOUS_CHAT_IMPORT_ACTIVE_WAIT_0MIN': PreviousChatImportActiveWait0minError,
     'PRIVACY_KEY_INVALID': PrivacyKeyInvalidError,
     'PRIVACY_TOO_LONG': PrivacyTooLongError,
@@ -4345,17 +4315,17 @@ rpc_errors_dict = {
     'STICKER_TGS_NOTGS': StickerTgsNotgsError,
     'STICKER_THUMB_PNG_NOPNG': StickerThumbPngNopngError,
     'STICKER_THUMB_TGS_NOTGS': StickerThumbTgsNotgsError,
-    'STICKER_VIDEO_BIG': StickerVideoBigError,
     'STICKER_VIDEO_NOWEBM': StickerVideoNowebmError,
+    'STICKER_VIDEO_BIG': StickerVideoBigError,
     'STORAGE_CHECK_FAILED': StorageCheckFailedError,
     'STORE_INVALID_SCALAR_TYPE': StoreInvalidScalarTypeError,
     'TAKEOUT_INVALID': TakeoutInvalidError,
     'TAKEOUT_REQUIRED': TakeoutRequiredError,
     'TEMP_AUTH_KEY_EMPTY': TempAuthKeyEmptyError,
-    'THEME_INVALID': ThemeInvalidError,
-    'THEME_MIME_INVALID': ThemeMimeInvalidError,
     'TIMEOUT': TimeoutError,
     'TITLE_INVALID': TitleInvalidError,
+    'THEME_INVALID': ThemeInvalidError,
+    'THEME_MIME_INVALID': ThemeMimeInvalidError,
     'TMP_PASSWORD_DISABLED': TmpPasswordDisabledError,
     'TMP_PASSWORD_INVALID': TmpPasswordInvalidError,
     'TOKEN_INVALID': TokenInvalidError,
@@ -4370,11 +4340,11 @@ rpc_errors_dict = {
     'UPDATE_APP_TO_LOGIN': UpdateAppToLoginError,
     'URL_INVALID': UrlInvalidError,
     'USAGE_LIMIT_INVALID': UsageLimitInvalidError,
+    'USER_VOLUME_INVALID': UserVolumeInvalidError,
     'USERNAME_INVALID': UsernameInvalidError,
     'USERNAME_NOT_MODIFIED': UsernameNotModifiedError,
     'USERNAME_NOT_OCCUPIED': UsernameNotOccupiedError,
     'USERNAME_OCCUPIED': UsernameOccupiedError,
-    'USERPIC_UPLOAD_REQUIRED': UserpicUploadRequiredError,
     'USERS_TOO_FEW': UsersTooFewError,
     'USERS_TOO_MUCH': UsersTooMuchError,
     'USER_ADMIN_INVALID': UserAdminInvalidError,
@@ -4398,7 +4368,7 @@ rpc_errors_dict = {
     'USER_NOT_PARTICIPANT': UserNotParticipantError,
     'USER_PRIVACY_RESTRICTED': UserPrivacyRestrictedError,
     'USER_RESTRICTED': UserRestrictedError,
-    'USER_VOLUME_INVALID': UserVolumeInvalidError,
+    'USERPIC_UPLOAD_REQUIRED': UserpicUploadRequiredError,
     'VIDEO_CONTENT_TYPE_INVALID': VideoContentTypeInvalidError,
     'VIDEO_FILE_INVALID': VideoFileInvalidError,
     'VIDEO_TITLE_EMPTY': VideoTitleEmptyError,

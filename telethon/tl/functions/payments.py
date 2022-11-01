@@ -6,7 +6,7 @@ import os
 import struct
 from datetime import datetime
 if TYPE_CHECKING:
-    from ...tl.types import TypeDataJSON, TypeInputInvoice, TypeInputMedia, TypeInputPaymentCredentials, TypeInputPeer, TypeInputStorePaymentPurpose, TypeInputUser, TypePaymentRequestedInfo
+    from ...tl.types import TypeDataJSON, TypeInputInvoice, TypeInputMedia, TypeInputPaymentCredentials, TypeInputPeer, TypeInputStorePaymentPurpose, TypePaymentRequestedInfo
 
 
 
@@ -284,46 +284,6 @@ class GetSavedInfoRequest(TLRequest):
     @classmethod
     def from_reader(cls, reader):
         return cls()
-
-
-class RequestRecurringPaymentRequest(TLRequest):
-    CONSTRUCTOR_ID = 0x146e958d
-    SUBCLASS_OF_ID = 0x8af52aac
-
-    def __init__(self, user_id: 'TypeInputUser', recurring_init_charge: str, invoice_media: 'TypeInputMedia'):
-        """
-        :returns Updates: Instance of either UpdatesTooLong, UpdateShortMessage, UpdateShortChatMessage, UpdateShort, UpdatesCombined, Updates, UpdateShortSentMessage.
-        """
-        self.user_id = user_id
-        self.recurring_init_charge = recurring_init_charge
-        self.invoice_media = invoice_media
-
-    async def resolve(self, client, utils):
-        self.user_id = utils.get_input_user(await client.get_input_entity(self.user_id))
-        self.invoice_media = utils.get_input_media(self.invoice_media)
-
-    def to_dict(self):
-        return {
-            '_': 'RequestRecurringPaymentRequest',
-            'user_id': self.user_id.to_dict() if isinstance(self.user_id, TLObject) else self.user_id,
-            'recurring_init_charge': self.recurring_init_charge,
-            'invoice_media': self.invoice_media.to_dict() if isinstance(self.invoice_media, TLObject) else self.invoice_media
-        }
-
-    def _bytes(self):
-        return b''.join((
-            b'\x8d\x95n\x14',
-            self.user_id._bytes(),
-            self.serialize_bytes(self.recurring_init_charge),
-            self.invoice_media._bytes(),
-        ))
-
-    @classmethod
-    def from_reader(cls, reader):
-        _user_id = reader.tgread_object()
-        _recurring_init_charge = reader.tgread_string()
-        _invoice_media = reader.tgread_object()
-        return cls(user_id=_user_id, recurring_init_charge=_recurring_init_charge, invoice_media=_invoice_media)
 
 
 class SendPaymentFormRequest(TLRequest):

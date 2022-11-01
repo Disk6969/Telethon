@@ -5,7 +5,7 @@ import os
 import struct
 from datetime import datetime
 if TYPE_CHECKING:
-    from ...tl.types import TypeChannelAdminLogEvent, TypeChannelParticipant, TypeChat, TypePeer, TypeUser
+    from ...tl.types import TypeChannelAdminLogEvent, TypeChannelParticipant, TypeChat, TypeSendAsPeer, TypeUser
 
 
 
@@ -181,10 +181,10 @@ class ChannelParticipantsNotModified(TLObject):
 
 
 class SendAsPeers(TLObject):
-    CONSTRUCTOR_ID = 0x8356cda9
+    CONSTRUCTOR_ID = 0xf496b0c6
     SUBCLASS_OF_ID = 0x38cb8d21
 
-    def __init__(self, peers: List['TypePeer'], chats: List['TypeChat'], users: List['TypeUser']):
+    def __init__(self, peers: List['TypeSendAsPeer'], chats: List['TypeChat'], users: List['TypeUser']):
         """
         Constructor for channels.SendAsPeers: Instance of SendAsPeers.
         """
@@ -202,7 +202,7 @@ class SendAsPeers(TLObject):
 
     def _bytes(self):
         return b''.join((
-            b'\xa9\xcdV\x83',
+            b'\xc6\xb0\x96\xf4',
             b'\x15\xc4\xb5\x1c',struct.pack('<i', len(self.peers)),b''.join(x._bytes() for x in self.peers),
             b'\x15\xc4\xb5\x1c',struct.pack('<i', len(self.chats)),b''.join(x._bytes() for x in self.chats),
             b'\x15\xc4\xb5\x1c',struct.pack('<i', len(self.users)),b''.join(x._bytes() for x in self.users),

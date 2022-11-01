@@ -5,7 +5,7 @@ import os
 import struct
 from datetime import datetime
 if TYPE_CHECKING:
-    from ...tl.types import TypeAvailableReaction, TypeBotInlineResult, TypeChat, TypeChatAdminWithInvites, TypeChatFull, TypeChatInviteImporter, TypeDialog, TypeDocument, TypeEncryptedFile, TypeExportedChatInvite, TypeHighScore, TypeInlineBotSwitchPM, TypeMessage, TypeMessagePeerReaction, TypeMessageUserVote, TypeMessageViews, TypeMessagesFilter, TypePeerSettings, TypeSearchResultsCalendarPeriod, TypeSearchResultsPosition, TypeSponsoredMessage, TypeStickerPack, TypeStickerSet, TypeStickerSetCovered, TypeUser
+    from ...tl.types import TypeAvailableReaction, TypeBotInlineResult, TypeChat, TypeChatAdminWithInvites, TypeChatFull, TypeChatInviteImporter, TypeDialog, TypeDocument, TypeEncryptedFile, TypeExportedChatInvite, TypeForumTopic, TypeHighScore, TypeInlineBotSwitchPM, TypeMessage, TypeMessagePeerReaction, TypeMessageUserVote, TypeMessageViews, TypeMessagesFilter, TypePeerSettings, TypeReaction, TypeSearchResultsCalendarPeriod, TypeSearchResultsPosition, TypeSponsoredMessage, TypeStickerKeyword, TypeStickerPack, TypeStickerSet, TypeStickerSetCovered, TypeUser
     from ...tl.types.updates import TypeState
 
 
@@ -1276,6 +1276,80 @@ class FeaturedStickersNotModified(TLObject):
         return cls(count=_count)
 
 
+class ForumTopics(TLObject):
+    CONSTRUCTOR_ID = 0x367617d3
+    SUBCLASS_OF_ID = 0x8e1d3e1e
+
+    def __init__(self, count: int, topics: List['TypeForumTopic'], messages: List['TypeMessage'], chats: List['TypeChat'], users: List['TypeUser'], pts: int, order_by_create_date: Optional[bool]=None):
+        """
+        Constructor for messages.ForumTopics: Instance of ForumTopics.
+        """
+        self.count = count
+        self.topics = topics
+        self.messages = messages
+        self.chats = chats
+        self.users = users
+        self.pts = pts
+        self.order_by_create_date = order_by_create_date
+
+    def to_dict(self):
+        return {
+            '_': 'ForumTopics',
+            'count': self.count,
+            'topics': [] if self.topics is None else [x.to_dict() if isinstance(x, TLObject) else x for x in self.topics],
+            'messages': [] if self.messages is None else [x.to_dict() if isinstance(x, TLObject) else x for x in self.messages],
+            'chats': [] if self.chats is None else [x.to_dict() if isinstance(x, TLObject) else x for x in self.chats],
+            'users': [] if self.users is None else [x.to_dict() if isinstance(x, TLObject) else x for x in self.users],
+            'pts': self.pts,
+            'order_by_create_date': self.order_by_create_date
+        }
+
+    def _bytes(self):
+        return b''.join((
+            b'\xd3\x17v6',
+            struct.pack('<I', (0 if self.order_by_create_date is None or self.order_by_create_date is False else 1)),
+            struct.pack('<i', self.count),
+            b'\x15\xc4\xb5\x1c',struct.pack('<i', len(self.topics)),b''.join(x._bytes() for x in self.topics),
+            b'\x15\xc4\xb5\x1c',struct.pack('<i', len(self.messages)),b''.join(x._bytes() for x in self.messages),
+            b'\x15\xc4\xb5\x1c',struct.pack('<i', len(self.chats)),b''.join(x._bytes() for x in self.chats),
+            b'\x15\xc4\xb5\x1c',struct.pack('<i', len(self.users)),b''.join(x._bytes() for x in self.users),
+            struct.pack('<i', self.pts),
+        ))
+
+    @classmethod
+    def from_reader(cls, reader):
+        flags = reader.read_int()
+
+        _order_by_create_date = bool(flags & 1)
+        _count = reader.read_int()
+        reader.read_int()
+        _topics = []
+        for _ in range(reader.read_int()):
+            _x = reader.tgread_object()
+            _topics.append(_x)
+
+        reader.read_int()
+        _messages = []
+        for _ in range(reader.read_int()):
+            _x = reader.tgread_object()
+            _messages.append(_x)
+
+        reader.read_int()
+        _chats = []
+        for _ in range(reader.read_int()):
+            _x = reader.tgread_object()
+            _chats.append(_x)
+
+        reader.read_int()
+        _users = []
+        for _ in range(reader.read_int()):
+            _x = reader.tgread_object()
+            _users.append(_x)
+
+        _pts = reader.read_int()
+        return cls(count=_count, topics=_topics, messages=_messages, chats=_chats, users=_users, pts=_pts, order_by_create_date=_order_by_create_date)
+
+
 class FoundStickerSets(TLObject):
     CONSTRUCTOR_ID = 0x8af09dd2
     SUBCLASS_OF_ID = 0x40df361
@@ -1905,6 +1979,63 @@ class PeerSettings(TLObject):
         return cls(settings=_settings, chats=_chats, users=_users)
 
 
+class Reactions(TLObject):
+    CONSTRUCTOR_ID = 0xeafdf716
+    SUBCLASS_OF_ID = 0xadc38324
+
+    # noinspection PyShadowingBuiltins
+    def __init__(self, hash: int, reactions: List['TypeReaction']):
+        """
+        Constructor for messages.Reactions: Instance of either ReactionsNotModified, Reactions.
+        """
+        self.hash = hash
+        self.reactions = reactions
+
+    def to_dict(self):
+        return {
+            '_': 'Reactions',
+            'hash': self.hash,
+            'reactions': [] if self.reactions is None else [x.to_dict() if isinstance(x, TLObject) else x for x in self.reactions]
+        }
+
+    def _bytes(self):
+        return b''.join((
+            b'\x16\xf7\xfd\xea',
+            struct.pack('<q', self.hash),
+            b'\x15\xc4\xb5\x1c',struct.pack('<i', len(self.reactions)),b''.join(x._bytes() for x in self.reactions),
+        ))
+
+    @classmethod
+    def from_reader(cls, reader):
+        _hash = reader.read_long()
+        reader.read_int()
+        _reactions = []
+        for _ in range(reader.read_int()):
+            _x = reader.tgread_object()
+            _reactions.append(_x)
+
+        return cls(hash=_hash, reactions=_reactions)
+
+
+class ReactionsNotModified(TLObject):
+    CONSTRUCTOR_ID = 0xb06fdbdf
+    SUBCLASS_OF_ID = 0xadc38324
+
+    def to_dict(self):
+        return {
+            '_': 'ReactionsNotModified'
+        }
+
+    def _bytes(self):
+        return b''.join((
+            b'\xdf\xdbo\xb0',
+        ))
+
+    @classmethod
+    def from_reader(cls, reader):
+        return cls()
+
+
 class RecentStickers(TLObject):
     CONSTRUCTOR_ID = 0x88d37c56
     SUBCLASS_OF_ID = 0xf76f8683
@@ -2259,28 +2390,32 @@ class SentEncryptedMessage(TLObject):
 
 
 class SponsoredMessages(TLObject):
-    CONSTRUCTOR_ID = 0x65a4c7d5
+    CONSTRUCTOR_ID = 0xc9ee1d87
     SUBCLASS_OF_ID = 0x7f4169e0
 
-    def __init__(self, messages: List['TypeSponsoredMessage'], chats: List['TypeChat'], users: List['TypeUser']):
+    def __init__(self, messages: List['TypeSponsoredMessage'], chats: List['TypeChat'], users: List['TypeUser'], posts_between: Optional[int]=None):
         """
-        Constructor for messages.SponsoredMessages: Instance of SponsoredMessages.
+        Constructor for messages.SponsoredMessages: Instance of either SponsoredMessages, SponsoredMessagesEmpty.
         """
         self.messages = messages
         self.chats = chats
         self.users = users
+        self.posts_between = posts_between
 
     def to_dict(self):
         return {
             '_': 'SponsoredMessages',
             'messages': [] if self.messages is None else [x.to_dict() if isinstance(x, TLObject) else x for x in self.messages],
             'chats': [] if self.chats is None else [x.to_dict() if isinstance(x, TLObject) else x for x in self.chats],
-            'users': [] if self.users is None else [x.to_dict() if isinstance(x, TLObject) else x for x in self.users]
+            'users': [] if self.users is None else [x.to_dict() if isinstance(x, TLObject) else x for x in self.users],
+            'posts_between': self.posts_between
         }
 
     def _bytes(self):
         return b''.join((
-            b'\xd5\xc7\xa4e',
+            b'\x87\x1d\xee\xc9',
+            struct.pack('<I', (0 if self.posts_between is None or self.posts_between is False else 1)),
+            b'' if self.posts_between is None or self.posts_between is False else (struct.pack('<i', self.posts_between)),
             b'\x15\xc4\xb5\x1c',struct.pack('<i', len(self.messages)),b''.join(x._bytes() for x in self.messages),
             b'\x15\xc4\xb5\x1c',struct.pack('<i', len(self.chats)),b''.join(x._bytes() for x in self.chats),
             b'\x15\xc4\xb5\x1c',struct.pack('<i', len(self.users)),b''.join(x._bytes() for x in self.users),
@@ -2288,6 +2423,12 @@ class SponsoredMessages(TLObject):
 
     @classmethod
     def from_reader(cls, reader):
+        flags = reader.read_int()
+
+        if flags & 1:
+            _posts_between = reader.read_int()
+        else:
+            _posts_between = None
         reader.read_int()
         _messages = []
         for _ in range(reader.read_int()):
@@ -2306,20 +2447,40 @@ class SponsoredMessages(TLObject):
             _x = reader.tgread_object()
             _users.append(_x)
 
-        return cls(messages=_messages, chats=_chats, users=_users)
+        return cls(messages=_messages, chats=_chats, users=_users, posts_between=_posts_between)
+
+
+class SponsoredMessagesEmpty(TLObject):
+    CONSTRUCTOR_ID = 0x1839490f
+    SUBCLASS_OF_ID = 0x7f4169e0
+
+    def to_dict(self):
+        return {
+            '_': 'SponsoredMessagesEmpty'
+        }
+
+    def _bytes(self):
+        return b''.join((
+            b'\x0fI9\x18',
+        ))
+
+    @classmethod
+    def from_reader(cls, reader):
+        return cls()
 
 
 class StickerSet(TLObject):
-    CONSTRUCTOR_ID = 0xb60a24a6
+    CONSTRUCTOR_ID = 0x6e153f16
     SUBCLASS_OF_ID = 0x9b704a5a
 
     # noinspection PyShadowingBuiltins
-    def __init__(self, set: 'TypeStickerSet', packs: List['TypeStickerPack'], documents: List['TypeDocument']):
+    def __init__(self, set: 'TypeStickerSet', packs: List['TypeStickerPack'], keywords: List['TypeStickerKeyword'], documents: List['TypeDocument']):
         """
         Constructor for messages.StickerSet: Instance of either StickerSet, StickerSetNotModified.
         """
         self.set = set
         self.packs = packs
+        self.keywords = keywords
         self.documents = documents
 
     def to_dict(self):
@@ -2327,14 +2488,16 @@ class StickerSet(TLObject):
             '_': 'StickerSet',
             'set': self.set.to_dict() if isinstance(self.set, TLObject) else self.set,
             'packs': [] if self.packs is None else [x.to_dict() if isinstance(x, TLObject) else x for x in self.packs],
+            'keywords': [] if self.keywords is None else [x.to_dict() if isinstance(x, TLObject) else x for x in self.keywords],
             'documents': [] if self.documents is None else [x.to_dict() if isinstance(x, TLObject) else x for x in self.documents]
         }
 
     def _bytes(self):
         return b''.join((
-            b'\xa6$\n\xb6',
+            b'\x16?\x15n',
             self.set._bytes(),
             b'\x15\xc4\xb5\x1c',struct.pack('<i', len(self.packs)),b''.join(x._bytes() for x in self.packs),
+            b'\x15\xc4\xb5\x1c',struct.pack('<i', len(self.keywords)),b''.join(x._bytes() for x in self.keywords),
             b'\x15\xc4\xb5\x1c',struct.pack('<i', len(self.documents)),b''.join(x._bytes() for x in self.documents),
         ))
 
@@ -2348,12 +2511,18 @@ class StickerSet(TLObject):
             _packs.append(_x)
 
         reader.read_int()
+        _keywords = []
+        for _ in range(reader.read_int()):
+            _x = reader.tgread_object()
+            _keywords.append(_x)
+
+        reader.read_int()
         _documents = []
         for _ in range(reader.read_int()):
             _x = reader.tgread_object()
             _documents.append(_x)
 
-        return cls(set=_set, packs=_packs, documents=_documents)
+        return cls(set=_set, packs=_packs, keywords=_keywords, documents=_documents)
 
 
 class StickerSetInstallResultArchive(TLObject):

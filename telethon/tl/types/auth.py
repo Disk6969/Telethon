@@ -413,7 +413,7 @@ class SentCodeTypeApp(TLObject):
 
     def __init__(self, length: int):
         """
-        Constructor for auth.SentCodeType: Instance of either SentCodeTypeApp, SentCodeTypeSms, SentCodeTypeCall, SentCodeTypeFlashCall, SentCodeTypeMissedCall.
+        Constructor for auth.SentCodeType: Instance of either SentCodeTypeApp, SentCodeTypeSms, SentCodeTypeCall, SentCodeTypeFlashCall, SentCodeTypeMissedCall, SentCodeTypeEmailCode, SentCodeTypeSetUpEmailRequired.
         """
         self.length = length
 
@@ -441,7 +441,7 @@ class SentCodeTypeCall(TLObject):
 
     def __init__(self, length: int):
         """
-        Constructor for auth.SentCodeType: Instance of either SentCodeTypeApp, SentCodeTypeSms, SentCodeTypeCall, SentCodeTypeFlashCall, SentCodeTypeMissedCall.
+        Constructor for auth.SentCodeType: Instance of either SentCodeTypeApp, SentCodeTypeSms, SentCodeTypeCall, SentCodeTypeFlashCall, SentCodeTypeMissedCall, SentCodeTypeEmailCode, SentCodeTypeSetUpEmailRequired.
         """
         self.length = length
 
@@ -463,13 +463,61 @@ class SentCodeTypeCall(TLObject):
         return cls(length=_length)
 
 
+class SentCodeTypeEmailCode(TLObject):
+    CONSTRUCTOR_ID = 0x5a159841
+    SUBCLASS_OF_ID = 0xff5b158e
+
+    def __init__(self, email_pattern: str, length: int, apple_signin_allowed: Optional[bool]=None, google_signin_allowed: Optional[bool]=None, next_phone_login_date: Optional[datetime]=None):
+        """
+        Constructor for auth.SentCodeType: Instance of either SentCodeTypeApp, SentCodeTypeSms, SentCodeTypeCall, SentCodeTypeFlashCall, SentCodeTypeMissedCall, SentCodeTypeEmailCode, SentCodeTypeSetUpEmailRequired.
+        """
+        self.email_pattern = email_pattern
+        self.length = length
+        self.apple_signin_allowed = apple_signin_allowed
+        self.google_signin_allowed = google_signin_allowed
+        self.next_phone_login_date = next_phone_login_date
+
+    def to_dict(self):
+        return {
+            '_': 'SentCodeTypeEmailCode',
+            'email_pattern': self.email_pattern,
+            'length': self.length,
+            'apple_signin_allowed': self.apple_signin_allowed,
+            'google_signin_allowed': self.google_signin_allowed,
+            'next_phone_login_date': self.next_phone_login_date
+        }
+
+    def _bytes(self):
+        return b''.join((
+            b'A\x98\x15Z',
+            struct.pack('<I', (0 if self.apple_signin_allowed is None or self.apple_signin_allowed is False else 1) | (0 if self.google_signin_allowed is None or self.google_signin_allowed is False else 2) | (0 if self.next_phone_login_date is None or self.next_phone_login_date is False else 4)),
+            self.serialize_bytes(self.email_pattern),
+            struct.pack('<i', self.length),
+            b'' if self.next_phone_login_date is None or self.next_phone_login_date is False else (self.serialize_datetime(self.next_phone_login_date)),
+        ))
+
+    @classmethod
+    def from_reader(cls, reader):
+        flags = reader.read_int()
+
+        _apple_signin_allowed = bool(flags & 1)
+        _google_signin_allowed = bool(flags & 2)
+        _email_pattern = reader.tgread_string()
+        _length = reader.read_int()
+        if flags & 4:
+            _next_phone_login_date = reader.tgread_date()
+        else:
+            _next_phone_login_date = None
+        return cls(email_pattern=_email_pattern, length=_length, apple_signin_allowed=_apple_signin_allowed, google_signin_allowed=_google_signin_allowed, next_phone_login_date=_next_phone_login_date)
+
+
 class SentCodeTypeFlashCall(TLObject):
     CONSTRUCTOR_ID = 0xab03c6d9
     SUBCLASS_OF_ID = 0xff5b158e
 
     def __init__(self, pattern: str):
         """
-        Constructor for auth.SentCodeType: Instance of either SentCodeTypeApp, SentCodeTypeSms, SentCodeTypeCall, SentCodeTypeFlashCall, SentCodeTypeMissedCall.
+        Constructor for auth.SentCodeType: Instance of either SentCodeTypeApp, SentCodeTypeSms, SentCodeTypeCall, SentCodeTypeFlashCall, SentCodeTypeMissedCall, SentCodeTypeEmailCode, SentCodeTypeSetUpEmailRequired.
         """
         self.pattern = pattern
 
@@ -497,7 +545,7 @@ class SentCodeTypeMissedCall(TLObject):
 
     def __init__(self, prefix: str, length: int):
         """
-        Constructor for auth.SentCodeType: Instance of either SentCodeTypeApp, SentCodeTypeSms, SentCodeTypeCall, SentCodeTypeFlashCall, SentCodeTypeMissedCall.
+        Constructor for auth.SentCodeType: Instance of either SentCodeTypeApp, SentCodeTypeSms, SentCodeTypeCall, SentCodeTypeFlashCall, SentCodeTypeMissedCall, SentCodeTypeEmailCode, SentCodeTypeSetUpEmailRequired.
         """
         self.prefix = prefix
         self.length = length
@@ -523,13 +571,46 @@ class SentCodeTypeMissedCall(TLObject):
         return cls(prefix=_prefix, length=_length)
 
 
+class SentCodeTypeSetUpEmailRequired(TLObject):
+    CONSTRUCTOR_ID = 0xa5491dea
+    SUBCLASS_OF_ID = 0xff5b158e
+
+    def __init__(self, apple_signin_allowed: Optional[bool]=None, google_signin_allowed: Optional[bool]=None):
+        """
+        Constructor for auth.SentCodeType: Instance of either SentCodeTypeApp, SentCodeTypeSms, SentCodeTypeCall, SentCodeTypeFlashCall, SentCodeTypeMissedCall, SentCodeTypeEmailCode, SentCodeTypeSetUpEmailRequired.
+        """
+        self.apple_signin_allowed = apple_signin_allowed
+        self.google_signin_allowed = google_signin_allowed
+
+    def to_dict(self):
+        return {
+            '_': 'SentCodeTypeSetUpEmailRequired',
+            'apple_signin_allowed': self.apple_signin_allowed,
+            'google_signin_allowed': self.google_signin_allowed
+        }
+
+    def _bytes(self):
+        return b''.join((
+            b'\xea\x1dI\xa5',
+            struct.pack('<I', (0 if self.apple_signin_allowed is None or self.apple_signin_allowed is False else 1) | (0 if self.google_signin_allowed is None or self.google_signin_allowed is False else 2)),
+        ))
+
+    @classmethod
+    def from_reader(cls, reader):
+        flags = reader.read_int()
+
+        _apple_signin_allowed = bool(flags & 1)
+        _google_signin_allowed = bool(flags & 2)
+        return cls(apple_signin_allowed=_apple_signin_allowed, google_signin_allowed=_google_signin_allowed)
+
+
 class SentCodeTypeSms(TLObject):
     CONSTRUCTOR_ID = 0xc000bba2
     SUBCLASS_OF_ID = 0xff5b158e
 
     def __init__(self, length: int):
         """
-        Constructor for auth.SentCodeType: Instance of either SentCodeTypeApp, SentCodeTypeSms, SentCodeTypeCall, SentCodeTypeFlashCall, SentCodeTypeMissedCall.
+        Constructor for auth.SentCodeType: Instance of either SentCodeTypeApp, SentCodeTypeSms, SentCodeTypeCall, SentCodeTypeFlashCall, SentCodeTypeMissedCall, SentCodeTypeEmailCode, SentCodeTypeSetUpEmailRequired.
         """
         self.length = length
 

@@ -6,7 +6,7 @@ import os
 import struct
 from datetime import datetime
 if TYPE_CHECKING:
-    from ...tl.types import TypeCodeSettings, TypeInputCheckPasswordSRP
+    from ...tl.types import TypeCodeSettings, TypeEmailVerification, TypeInputCheckPasswordSRP
     from ...tl.types.account import TypePasswordInputSettings
 
 
@@ -538,39 +538,52 @@ class SendCodeRequest(TLRequest):
 
 
 class SignInRequest(TLRequest):
-    CONSTRUCTOR_ID = 0xbcd51581
+    CONSTRUCTOR_ID = 0x8d52a951
     SUBCLASS_OF_ID = 0xb9e04e39
 
-    def __init__(self, phone_number: str, phone_code_hash: str, phone_code: str):
+    def __init__(self, phone_number: str, phone_code_hash: str, phone_code: Optional[str]=None, email_verification: Optional['TypeEmailVerification']=None):
         """
         :returns auth.Authorization: Instance of either Authorization, AuthorizationSignUpRequired.
         """
         self.phone_number = phone_number
         self.phone_code_hash = phone_code_hash
         self.phone_code = phone_code
+        self.email_verification = email_verification
 
     def to_dict(self):
         return {
             '_': 'SignInRequest',
             'phone_number': self.phone_number,
             'phone_code_hash': self.phone_code_hash,
-            'phone_code': self.phone_code
+            'phone_code': self.phone_code,
+            'email_verification': self.email_verification.to_dict() if isinstance(self.email_verification, TLObject) else self.email_verification
         }
 
     def _bytes(self):
         return b''.join((
-            b'\x81\x15\xd5\xbc',
+            b'Q\xa9R\x8d',
+            struct.pack('<I', (0 if self.phone_code is None or self.phone_code is False else 1) | (0 if self.email_verification is None or self.email_verification is False else 2)),
             self.serialize_bytes(self.phone_number),
             self.serialize_bytes(self.phone_code_hash),
-            self.serialize_bytes(self.phone_code),
+            b'' if self.phone_code is None or self.phone_code is False else (self.serialize_bytes(self.phone_code)),
+            b'' if self.email_verification is None or self.email_verification is False else (self.email_verification._bytes()),
         ))
 
     @classmethod
     def from_reader(cls, reader):
+        flags = reader.read_int()
+
         _phone_number = reader.tgread_string()
         _phone_code_hash = reader.tgread_string()
-        _phone_code = reader.tgread_string()
-        return cls(phone_number=_phone_number, phone_code_hash=_phone_code_hash, phone_code=_phone_code)
+        if flags & 1:
+            _phone_code = reader.tgread_string()
+        else:
+            _phone_code = None
+        if flags & 2:
+            _email_verification = reader.tgread_object()
+        else:
+            _email_verification = None
+        return cls(phone_number=_phone_number, phone_code_hash=_phone_code_hash, phone_code=_phone_code, email_verification=_email_verification)
 
 
 class SignUpRequest(TLRequest):

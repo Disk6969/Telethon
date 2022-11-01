@@ -5,7 +5,7 @@ import os
 import struct
 from datetime import datetime
 if TYPE_CHECKING:
-    from ...tl.types import TypeAccessPointRule, TypeChat, TypeDataJSON, TypeDocument, TypeMessageEntity, TypePeer, TypeRecentMeUrl, TypeUser
+    from ...tl.types import TypeAccessPointRule, TypeChat, TypeDataJSON, TypeDocument, TypeMessageEntity, TypePeer, TypePremiumSubscriptionOption, TypeRecentMeUrl, TypeUser
     from ...tl.types.help import TypeCountry, TypeCountryCode, TypeTermsOfService
 
 
@@ -454,10 +454,10 @@ class PassportConfigNotModified(TLObject):
 
 
 class PremiumPromo(TLObject):
-    CONSTRUCTOR_ID = 0x8a4f3c29
+    CONSTRUCTOR_ID = 0x5334759c
     SUBCLASS_OF_ID = 0xc987a338
 
-    def __init__(self, status_text: str, status_entities: List['TypeMessageEntity'], video_sections: List[str], videos: List['TypeDocument'], currency: str, monthly_amount: int, users: List['TypeUser']):
+    def __init__(self, status_text: str, status_entities: List['TypeMessageEntity'], video_sections: List[str], videos: List['TypeDocument'], period_options: List['TypePremiumSubscriptionOption'], users: List['TypeUser']):
         """
         Constructor for help.PremiumPromo: Instance of PremiumPromo.
         """
@@ -465,8 +465,7 @@ class PremiumPromo(TLObject):
         self.status_entities = status_entities
         self.video_sections = video_sections
         self.videos = videos
-        self.currency = currency
-        self.monthly_amount = monthly_amount
+        self.period_options = period_options
         self.users = users
 
     def to_dict(self):
@@ -476,20 +475,18 @@ class PremiumPromo(TLObject):
             'status_entities': [] if self.status_entities is None else [x.to_dict() if isinstance(x, TLObject) else x for x in self.status_entities],
             'video_sections': [] if self.video_sections is None else self.video_sections[:],
             'videos': [] if self.videos is None else [x.to_dict() if isinstance(x, TLObject) else x for x in self.videos],
-            'currency': self.currency,
-            'monthly_amount': self.monthly_amount,
+            'period_options': [] if self.period_options is None else [x.to_dict() if isinstance(x, TLObject) else x for x in self.period_options],
             'users': [] if self.users is None else [x.to_dict() if isinstance(x, TLObject) else x for x in self.users]
         }
 
     def _bytes(self):
         return b''.join((
-            b')<O\x8a',
+            b'\x9cu4S',
             self.serialize_bytes(self.status_text),
             b'\x15\xc4\xb5\x1c',struct.pack('<i', len(self.status_entities)),b''.join(x._bytes() for x in self.status_entities),
             b'\x15\xc4\xb5\x1c',struct.pack('<i', len(self.video_sections)),b''.join(self.serialize_bytes(x) for x in self.video_sections),
             b'\x15\xc4\xb5\x1c',struct.pack('<i', len(self.videos)),b''.join(x._bytes() for x in self.videos),
-            self.serialize_bytes(self.currency),
-            struct.pack('<q', self.monthly_amount),
+            b'\x15\xc4\xb5\x1c',struct.pack('<i', len(self.period_options)),b''.join(x._bytes() for x in self.period_options),
             b'\x15\xc4\xb5\x1c',struct.pack('<i', len(self.users)),b''.join(x._bytes() for x in self.users),
         ))
 
@@ -514,15 +511,19 @@ class PremiumPromo(TLObject):
             _x = reader.tgread_object()
             _videos.append(_x)
 
-        _currency = reader.tgread_string()
-        _monthly_amount = reader.read_long()
+        reader.read_int()
+        _period_options = []
+        for _ in range(reader.read_int()):
+            _x = reader.tgread_object()
+            _period_options.append(_x)
+
         reader.read_int()
         _users = []
         for _ in range(reader.read_int()):
             _x = reader.tgread_object()
             _users.append(_x)
 
-        return cls(status_text=_status_text, status_entities=_status_entities, video_sections=_video_sections, videos=_videos, currency=_currency, monthly_amount=_monthly_amount, users=_users)
+        return cls(status_text=_status_text, status_entities=_status_entities, video_sections=_video_sections, videos=_videos, period_options=_period_options, users=_users)
 
 
 class PromoData(TLObject):
