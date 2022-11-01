@@ -1529,11 +1529,29 @@ class MessageMethods:
                     return update.message.reactions
     
     async def set_quick_reaction(self: 'TelegramClient', reaction: str):
-    
-            request = functions.messages.SetDefaultReactionRequest(
-                reaction=utils.convert_reaction(reaction)
-            )
-            return await self(request)
-        
-            # endregion
-        
+        request = functions.messages.SetDefaultReactionRequest(
+        reaction=utils.convert_reaction(reaction)
+        )
+        return await self(request)
+
+    # endregion 
+
+    async def get_gallery(self, entity, message_id=None):
+        if isinstance(entity, types.Message):
+            message_id = entity.id
+            entity = await self.get_input_entity(entity.peer_id)
+        else:
+            entity = await self.get_input_entity(entity)
+        messages = await self.get_messages(
+            entity,
+            ids=[msg_id for msg_id in range(message_id - 9, message_id + 10)])
+        media_group_id = (
+            messages[9].grouped_id
+            if len(messages) == 19
+            else messages[message_id - 1].grouped_id
+        )
+        messages = [i for i in messages if i is not None]
+        if media_group_id is None:
+            raise ValueError("Not a gallery message!")
+
+        return [msg for msg in messages if msg.grouped_id == media_group_id]
