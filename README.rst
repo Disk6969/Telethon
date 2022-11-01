@@ -11,7 +11,7 @@ Forked Telethon |logo|
   +-----------------------+
   |   Telethon 1.24.0     |
   +-----------------------+
-  |      layer: 146       |
+  |      layer: 148       |
   +-----------------------+
 
 About
@@ -145,16 +145,15 @@ You can use the argument ``noforwards=True`` in sender methods.
 
 links in get message
 ====================
-you can now get a single message using the link in get/iter_messages.
+You can now get a single message using the link in get/iter_messages.
 
 ``client.get_messages("https://t.me/username/1")``
 
 The message object will also have .link attribute, which will return link of the message 
 
-iter_participant
-================
-aggressive True will sleep by default.
-its sleep value can be adjusted using the sleep parameter, this will make it sleep for that specified amount before processing next chunk.
+Extra 
+===== 
+Added client.get_gallery(message), which fetches all the grouped messages belonging to it.
 
 .. code-block:: py 
 
