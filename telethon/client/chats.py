@@ -1,8 +1,8 @@
-import sys
 import asyncio 
 import inspect
 import string
 import typing
+import itertools 
 
 from .. import helpers, utils, hints, errors
 from ..requestiter import RequestIter
@@ -1012,7 +1012,7 @@ class ChatMethods:
                 is_admin = any(locals()[x] for x in perm_names)
 
             return await self(functions.messages.EditChatAdminRequest(
-                entity, user, is_admin=is_admin))
+                entity.chat_id, user, is_admin=is_admin))
 
         else:
             raise ValueError(
@@ -1301,7 +1301,7 @@ class ChatMethods:
             return custom.ParticipantPermissions(participant.participant, False)
         elif helpers._entity_type(entity) == helpers._EntityType.CHAT:
             chat = await self(functions.messages.GetFullChatRequest(
-                entity.id
+                entity.chat_id
             ))
             if isinstance(user, types.InputPeerSelf):
                 user = await self.get_me(input_peer=True)
