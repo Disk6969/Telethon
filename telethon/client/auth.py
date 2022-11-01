@@ -102,14 +102,6 @@ class AuthMethods:
                 with client:
                     pass
         """
-        if code_callback is None:
-            def code_callback():
-                return input('Please enter the code you received: ')
-        elif not callable(code_callback):
-            raise ValueError(
-                'The code_callback parameter needs to be a callable '
-                'function that returns the code you received by Telegram.'
-            )
 
         if not phone and not bot_token:
             raise ValueError('No phone number or bot token provided.')
@@ -184,9 +176,27 @@ class AuthMethods:
 
         me = None
         attempts = 0
-        two_step_detected = False
+        two_step_detected = False 
 
-        await self.send_code_request(phone, force_sms=force_sms)
+
+        type = await self.send_code_request(phone, force_sms=force_sms)
+
+        if code_callback is None:
+            def code_callback():
+                msg = 'Please enter the code'
+                if isinstance(type.type, types.auth.SentCodeTypeSms):
+                    msg += ' sent to your SMS: '
+                elif isinstance(type.type, types.auth.SentCodeTypeApp):
+                    msg += ' sent to your Telegram app: ' 
+                else:
+                    msg += ' the code you received: '
+                return input(msg)
+        elif not callable(code_callback):
+            raise ValueError(
+                'The code_callback parameter needs to be a callable '
+                'function that returns the code you received by Telegram.'
+            )
+            
         sign_up = False  # assume login
         while attempts < max_attempts:
             try:
