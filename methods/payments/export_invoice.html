@@ -22,6 +22,7 @@ payments.exportInvoice#0f91b065 invoice_media:<a href="../../types/input_media.h
     result = client(functions.payments.ExportInvoiceRequest(
         invoice_media=types.InputMediaUploadedPhoto(
             file=client.upload_file(<em>'/path/to/file.jpg'</em>),
+            spoiler=<strong>True</strong>,
             stickers=[types.InputDocument(
                 id=-12398745604826,
                 access_hash=-12398745604826,
